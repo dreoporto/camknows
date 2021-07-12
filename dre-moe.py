@@ -25,16 +25,11 @@ FRAMERATE_RANGE = (Fraction(1, 6), Fraction(30, 1))
 SHUTTER_SPEED = 125000
 
 
-def capture_image(path: str) -> None:
+def setup_camera(camera) -> None:
 
     print(f'{get_timestamp()}\tSetup PiCamera')
-    camera = picamera.PiCamera()
     camera.resolution = RESOLUTION
     camera.led = False
-
-    if SHOW_TIMESTAMP:
-        camera.annotate_background = picamera.Color('black')
-        camera.annotate_text = get_timestamp()
 
     camera.iso = ISO
     camera.framerate_range = FRAMERATE_RANGE
@@ -51,15 +46,24 @@ def capture_image(path: str) -> None:
     print('framerate', camera.framerate)
     print('framerate_range', camera.framerate_range)
 
-    try:
-        print(f'{get_timestamp()}\tAWB Delay for {AWB_DELAY} seconds')
-        sleep(AWB_DELAY)
-        print(f'{get_timestamp()}\tTaking Photo...')
-        camera.capture(path)
-        print(f'{get_timestamp()}\tPhoto Complete')
-    finally:
-        camera.close()
-        print(f'{get_timestamp()}\tCamera Closed')
+
+def capture_image(camera, directory_path: str) -> None:
+
+    print(f'{get_timestamp()}\tAWB Delay for {AWB_DELAY} seconds')
+    sleep(AWB_DELAY)
+
+    print(f'{get_timestamp()}\tTaking Photo...')
+    if SHOW_TIMESTAMP:
+        camera.annotate_background = picamera.Color('black')
+        camera.annotate_text = get_timestamp()
+
+    time_suffix = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    filename = f'{IMAGE_FILE}-{time_suffix}-{str(uuid.uuid4())[:8]}.jpg'
+    filepath = os.path.join(directory_path, filename)
+
+    camera.capture(filepath)
+
+    print(f'{get_timestamp()}\tPhoto Complete')
 
 
 def get_timestamp():
@@ -70,20 +74,20 @@ def do_motion_capture():
 
     # setup directory and output format
     subdirectory = datetime.datetime.now().strftime('%Y/%m/%d')
-    time_suffix = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
     directory_path = os.path.join(MAIN_DIRECTORY, subdirectory)
 
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
 
-    # i like guids
-    filename = f'{IMAGE_FILE}-{time_suffix}-{str(uuid.uuid4())[:8]}.jpg'
-    filepath = os.path.join(directory_path, filename)
-
-    # print(f'{get_timestamp()}\tCLICK!\tnext photo in {WAIT_TIME} seconds...')  # , end='\r\r')
-    # sys.stdout.flush()
-
-    capture_image(filepath)
+    with picamera.PiCamera() as camera:
+        try:
+            setup_camera(camera)
+            capture_image(camera, directory_path)
+        # except:
+            # TODO AEO log error
+        finally:
+            camera.close()
+            print(f'{get_timestamp()}\tCamera Closed')
 
     print(f'{get_timestamp()}\tsleeping for {WAIT_TIME} seconds')
     sleep(WAIT_TIME)
