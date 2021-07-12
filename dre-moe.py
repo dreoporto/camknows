@@ -1,33 +1,46 @@
 import datetime
 import os
-import sys
+# import sys    # TODO AEO TEMP
 import uuid
 from fractions import Fraction
 from time import sleep
 
 # noinspection PyUnresolvedReferences
-from picamera import PiCamera
+import picamera
 
+# CAMERA / APP CONFIG SETTINGS
 MAIN_DIRECTORY = 'media-files'
 IMAGE_FILE = 'dre-moe'
 WAIT_TIME = 2  # TODO AEO TEMP
 LOOP = False  # TODO AEO TEMP
 AWB_DELAY = 3  # allow awb to catch up
+RESOLUTION = (2592, 1944)
+SHOW_TIMESTAMP = True
+
+# low light config settings
+ISO = 640
+# default is 30 (30 fps); USE RANGE INSTEAD
+# camera.framerate = Fraction(1, 8)
+FRAMERATE_RANGE = (Fraction(1, 6), Fraction(30, 1))
+SHUTTER_SPEED = 125000
 
 
 def capture_image(path: str) -> None:
 
     print(f'{get_timestamp()}\tSetup PiCamera')
-    camera = PiCamera()
-    camera.resolution = (2592, 1944)
+    camera = picamera.PiCamera()
+    camera.resolution = RESOLUTION
     camera.led = False
 
-    camera.iso = 640
-    # default is 30 (30 fps); USE RANGE INSTEAD
-    # camera.framerate = Fraction(1, 8)
-    camera.framerate_range = (Fraction(1, 6), Fraction(30, 1))
-    camera.shutter_speed = 125000
+    if SHOW_TIMESTAMP:
+        camera.annotate_background = picamera.Color('black')
+        camera.annotate_text = get_timestamp()
 
+    camera.iso = ISO
+    camera.framerate_range = FRAMERATE_RANGE
+    camera.shutter_speed = SHUTTER_SPEED
+
+    # print camera settings
     print(f'{get_timestamp()}\tCAMERA SETTINGS:')
     print('shutter speed:', camera.shutter_speed)
     print('exposure speed:', camera.exposure_speed)
