@@ -8,6 +8,9 @@ from time import sleep
 # noinspection PyUnresolvedReferences
 import picamera
 
+# TODO AEO NEXT: move config settings to JSON
+# TODO AEO NEXT: change most PRINTs to LOG to allow disable/level
+
 # CAMERA / APP CONFIG SETTINGS
 MAIN_DIRECTORY = 'media-files'
 IMAGE_FILE = 'dre-moe'
