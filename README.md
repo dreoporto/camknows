@@ -1,1 +1,3 @@
-# DRE-MOE -- motion capture for the Raspberry Pi
+# Dre-Moe
+
+## Image and motion capture for the Raspberry Pi

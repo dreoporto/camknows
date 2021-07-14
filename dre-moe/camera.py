@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 # import sys    # TODO AEO TEMP
 import uuid
@@ -8,9 +9,8 @@ from time import sleep
 # noinspection PyUnresolvedReferences
 import picamera
 
+CONFIG_FILE = 'dre-moe-config.json'
 # TODO AEO NEXT: move config settings to JSON
-# TODO AEO NEXT: change most PRINTs to LOG to allow disable/level
-
 # CAMERA / APP CONFIG SETTINGS
 MAIN_DIRECTORY = 'media-files'
 IMAGE_FILE = 'dre-moe'
@@ -19,7 +19,6 @@ LOOP = False  # TODO AEO TEMP
 AWB_DELAY = 3  # allow awb to catch up
 RESOLUTION = (2592, 1944)
 SHOW_TIMESTAMP = True
-
 # low light config settings
 ISO = 640
 # default is 30 (30 fps); USE RANGE INSTEAD
@@ -27,11 +26,14 @@ ISO = 640
 FRAMERATE_RANGE = (Fraction(1, 6), Fraction(30, 1))
 SHUTTER_SPEED = 125000
 
+# TODO AEO NEXT: change most PRINTs to LOG to allow disable/level
+
 
 class Camera:
 
     # def __init__(self):
-    # TODO AEO do init here
+    #     with open(CONFIG_FILE) as json_file:
+    #         self.config = json.load(json_file)
 
     def _setup_camera(self, camera) -> None:
 
