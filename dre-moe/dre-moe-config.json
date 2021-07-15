@@ -7,10 +7,11 @@
     "resolution_width": 2592,
     "resolution_height": 1944,
     "show_timestamp": true,
-    "iso": 640,
-    "framerate_range_from": "1/6",
-    "framerate_range_to": "30/1",
-    "shutter_speed": 125000,
+    "enable_manual_mode": true,
+    "manual_iso": 640,
+    "manual_framerate_range_from": "1/6",
+    "manual_framerate_range_to": "30/1",
+    "manual_shutter_speed": 125000,
     "print_camera_settings": true,
     "timestamp_format": "%Y-%m-%d %H:%M:%S"
 }

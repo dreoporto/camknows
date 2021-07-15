@@ -27,13 +27,14 @@ class Camera:
         camera.resolution = (resolution_width, resolution_height)
         camera.led = False
 
-        # low light settings
-        camera.iso = self.config['iso']
-        # (Fraction(1, 6), Fraction(30, 1))
-        framerate_range_from = Fraction(self.config['framerate_range_from'])
-        framerate_range_to = Fraction(self.config['framerate_range_to'])
-        camera.framerate_range = (framerate_range_from, framerate_range_to)
-        camera.shutter_speed = self.config['shutter_speed']
+        if self.config['enable_manual_mode']:
+            # useful for low light settings
+            # ex: framerate range (Fraction(1, 6), Fraction(30, 1)) allows slow shutter speed
+            camera.iso = self.config['manual_iso']
+            framerate_range_from = Fraction(self.config['manual_framerate_range_from'])
+            framerate_range_to = Fraction(self.config['manual_framerate_range_to'])
+            camera.framerate_range = (framerate_range_from, framerate_range_to)
+            camera.shutter_speed = self.config['manual_shutter_speed']
 
         self._print_camera_settings(camera)
 
