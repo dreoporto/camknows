@@ -1,7 +1,6 @@
 import datetime
 import json
 import os
-# import sys    # TODO AEO TEMP
 import uuid
 from fractions import Fraction
 from time import sleep
@@ -36,7 +35,13 @@ class Camera:
         camera.framerate_range = (framerate_range_from, framerate_range_to)
         camera.shutter_speed = self.config['shutter_speed']
 
-        # print camera settings
+        self.print_camera_settings(camera)
+
+    def print_camera_settings(self, camera):
+
+        if not self.config['print_camera_settings']:
+            return
+
         print(f'{self.get_timestamp()}\tCAMERA SETTINGS:')
         print('shutter speed:', camera.shutter_speed)
         print('exposure speed:', camera.exposure_speed)
@@ -102,6 +107,5 @@ class Camera:
             if not do_loop:
                 break
 
-    # noinspection PyMethodMayBeStatic
     def get_timestamp(self):
-        return datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.now().strftime(self.config['timestamp_format'])
