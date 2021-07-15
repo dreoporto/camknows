@@ -21,7 +21,7 @@ class Camera:
 
     def _setup_camera(self, camera) -> None:
 
-        print(f'{self.get_timestamp()}\tSetup PiCamera')
+        self._log('Setup PiCamera')
         resolution_width = self.config['resolution_width']
         resolution_height = self.config['resolution_height']
         camera.resolution = (resolution_width, resolution_height)
@@ -35,34 +35,34 @@ class Camera:
         camera.framerate_range = (framerate_range_from, framerate_range_to)
         camera.shutter_speed = self.config['shutter_speed']
 
-        self.print_camera_settings(camera)
+        self._print_camera_settings(camera)
 
-    def print_camera_settings(self, camera):
+    def _print_camera_settings(self, camera):
 
         if not self.config['print_camera_settings']:
             return
 
-        print(f'{self.get_timestamp()}\tCAMERA SETTINGS:')
-        print('shutter speed:', camera.shutter_speed)
-        print('exposure speed:', camera.exposure_speed)
-        print('brightness', camera.brightness)
-        print('exposure_compensation', camera.exposure_compensation)
-        print('awb_mode', camera.awb_mode)
-        print('exposure_mode', camera.exposure_mode)
-        print('framerate', camera.framerate)
-        print('framerate_range', camera.framerate_range)
+        self._log('CAMERA SETTINGS:')
+        self._log(f'shutter speed\t\t\t{camera.shutter_speed}')
+        self._log(f'exposure speed\t\t\t{camera.exposure_speed}')
+        self._log(f'brightness\t\t\t{camera.brightness}')
+        self._log(f'exposure_compensation\t\t{camera.exposure_compensation}')
+        self._log(f'awb_mode\t\t\t{camera.awb_mode}')
+        self._log(f'exposure_mode\t\t\t{camera.exposure_mode}')
+        self._log(f'framerate\t\t\t{camera.framerate}')
+        self._log(f'framerate_range\t\t\t{camera.framerate_range}')
 
     def _capture_image(self, camera, directory_path: str) -> None:
 
         # allow awb to catch up
         awb_delay = self.config['awb_delay']
-        print(f'{self.get_timestamp()}\tAWB Delay for {awb_delay} seconds')
+        self._log(f'AWB Delay for {awb_delay} seconds')
         sleep(awb_delay)
 
-        print(f'{self.get_timestamp()}\tTaking Photo...')
+        self._log('Taking Photo...')
         if self.config['show_timestamp']:
             camera.annotate_background = picamera.Color('black')
-            camera.annotate_text = self.get_timestamp()
+            camera.annotate_text = self._get_timestamp()
 
         image_file = self.config['image_file']
         time_suffix = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
@@ -71,7 +71,7 @@ class Camera:
 
         camera.capture(filepath)
 
-        print(f'{self.get_timestamp()}\tPhoto Complete')
+        self._log('Photo Complete')
 
     def _do_motion_capture(self):
 
@@ -91,10 +91,10 @@ class Camera:
             # TODO AEO log error
             finally:
                 camera.close()
-                print(f'{self.get_timestamp()}\tCamera Closed')
+                self._log('Camera Closed')
 
         wait_time = self.config['wait_time']
-        print(f'{self.get_timestamp()}\tsleeping for {wait_time} seconds')
+        self._log(f'sleeping for {wait_time} seconds')
         sleep(wait_time)
 
     def start_motion_capture_loop(self):
@@ -107,5 +107,8 @@ class Camera:
             if not do_loop:
                 break
 
-    def get_timestamp(self):
+    def _get_timestamp(self):
         return datetime.datetime.now().strftime(self.config['timestamp_format'])
+
+    def _log(self, message: str):
+        print(f'{self._get_timestamp()}\t{message}')
