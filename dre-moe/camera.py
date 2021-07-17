@@ -10,13 +10,16 @@ import picamera
 
 CONFIG_FILE = 'dre-moe-config.json'
 
-# TODO AEO NEXT: change most PRINTs to LOG to allow disable/level
+# TODO AEO NEXT: create LOG utility with LEVEL(INFO, DEBUG, STATUS, WARN, ERROR) and OUTPUT (print, file) options
+# defer and add to Notion board?
 
 
 class Camera:
 
     def __init__(self):
-        with open(CONFIG_FILE) as json_file:
+        self.script_directory = os.path.dirname(os.path.abspath(__file__))
+
+        with open(os.path.join(self.script_directory, CONFIG_FILE)) as json_file:
             self.config = json.load(json_file)
 
     def _setup_camera(self, camera) -> None:
@@ -79,7 +82,7 @@ class Camera:
         # setup directory and output format
         main_directory = self.config['main_directory']
         subdirectory = datetime.datetime.now().strftime('%Y/%m/%d')
-        directory_path = os.path.join(main_directory, subdirectory)
+        directory_path = os.path.join(self.script_directory, main_directory, subdirectory)
 
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
