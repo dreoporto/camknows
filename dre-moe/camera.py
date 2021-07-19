@@ -27,6 +27,7 @@ class Camera:
         self._log('Setup PiCamera')
         resolution_width = self.config['resolution_width']
         resolution_height = self.config['resolution_height']
+        camera.rotation = self.config['rotation']
         camera.resolution = (resolution_width, resolution_height)
         camera.led = False
 

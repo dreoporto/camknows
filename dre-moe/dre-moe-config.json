@@ -6,6 +6,7 @@
     "awb_delay": 3,
     "resolution_width": 2592,
     "resolution_height": 1944,
+    "rotation": 0,
     "show_timestamp": true,
     "enable_manual_mode": true,
     "manual_iso": 640,
