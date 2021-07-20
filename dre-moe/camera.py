@@ -8,7 +8,7 @@ from time import sleep
 # noinspection PyUnresolvedReferences
 import picamera
 
-CONFIG_FILE = 'dre-moe-config.json'
+CONFIG_FILE = 'dre_moe_config.json'
 
 # TODO AEO NEXT: create LOG utility with LEVEL(INFO, DEBUG, STATUS, WARN, ERROR) and OUTPUT (print, file) options
 # defer and add to Notion board?
