@@ -1,9 +1,9 @@
-# noinspection PyUnresolvedReferences
-import cv2
 
 import datetime
 import os
 from typing import List
+
+import cv2
 
 
 class VideoProcessor:
