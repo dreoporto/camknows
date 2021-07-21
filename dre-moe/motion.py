@@ -58,6 +58,11 @@ class Motion:
 
                 if diff_score > self.diff_threshold:
                     print('motion detected:', image_file, 'diff score:', diff_score)
+                    # TODO AEO output to TAB DELIMITED log file for DIFF SCORE reference, with formatted diff_score
+                    # EXAMPLE
+                    # TIMESTAMP \t EVENT \t FILE \t SCORE
+                    # TIMESTAMP \t Motion Detected \t dre-moe-2021-07-19-07-11-57-c7fdda3d.jpg \t 52,807,976
+                    # TIMESTAMP \t ERROR DETAILS
                     output_directory = os.path.join(images_directory, 'motion_detected')
                     # print(output_directory)
                     if not os.path.exists(output_directory):
