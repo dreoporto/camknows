@@ -14,5 +14,6 @@
     "manual_framerate_range_to": "30/1",
     "manual_shutter_speed": 125000,
     "print_camera_settings": true,
-    "timestamp_format": "%Y-%m-%d %H:%M:%S"
+    "timestamp_format": "%Y-%m-%d %H:%M:%S",
+    "diff_threshold": 5000000
 }

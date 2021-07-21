@@ -5,6 +5,9 @@ import uuid
 from fractions import Fraction
 from time import sleep
 
+import cv2
+import numpy as np
+
 # noinspection PyUnresolvedReferences
 import picamera
 
@@ -21,6 +24,9 @@ class Camera:
 
         with open(os.path.join(self.script_directory, CONFIG_FILE)) as json_file:
             self.config = json.load(json_file)
+
+        self.previous_processed_image = None
+        self.diff_threshold = self.config['diff_threshold']  # 5000000
 
     def _setup_camera(self, camera) -> None:
 
@@ -74,9 +80,39 @@ class Camera:
         filename = f'{image_file}-{time_suffix}-{str(uuid.uuid4())[:8]}.jpg'
         filepath = os.path.join(directory_path, filename)
 
+        # TODO AEO can we do this in-memory and avoid writing a file?
         camera.capture(filepath)
+        self._check_for_motion(filepath)
 
         self._log('Photo Complete')
+
+    def _check_for_motion(self, image_file):
+
+        processed_image = cv2.imread(image_file)
+        processed_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
+        processed_image = cv2.blur(processed_image, (20, 20))
+
+        if self.previous_processed_image is None:
+            self.previous_processed_image = processed_image
+            return
+
+        images_diff = cv2.absdiff(self.previous_processed_image, processed_image)
+        diff_score = np.sum(images_diff)
+
+        time_diff = 0
+
+        if diff_score > self.diff_threshold:
+            self._log(f'motion detected:{image_file}\tdiff score:{diff_score}')
+            # debugging only!
+            # cv2.imwrite(image_file.replace('.', '_p0.'), processed_image)
+            # cv2.imwrite(image_file.replace('.', '_p1.'), self.previous_processed_image)
+            self.previous_processed_image = processed_image
+        elif time_diff > 0:
+            # TODO AEO also check elapsed time
+            self.previous_processed_image = processed_image
+        else:
+            # no change or time lapse; remove file
+            os.remove(image_file)
 
     def _do_motion_capture(self):
 
