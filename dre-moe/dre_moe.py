@@ -4,8 +4,11 @@ from camera import Camera
 
 def main() -> None:
 
-    camera = Camera()
-    camera.start_motion_capture_loop()
+    try:
+        camera = Camera()
+        camera.start_camera_loop()
+    except KeyboardInterrupt:
+        print('Application closed (KeyboardInterrupt)')
 
 
 if __name__ == '__main__':

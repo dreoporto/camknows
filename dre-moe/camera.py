@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import sys
 import uuid
 from fractions import Fraction
 from time import sleep
@@ -86,7 +87,7 @@ class Camera:
 
         self._log('Photo Complete')
 
-    def _check_for_motion(self, image_file):
+    def _check_for_motion(self, image_file: str):
 
         processed_image = cv2.imread(image_file)
         processed_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
@@ -114,7 +115,7 @@ class Camera:
             # no change or time lapse; remove file
             os.remove(image_file)
 
-    def _do_motion_capture(self):
+    def _shoot_camera(self):
 
         # setup directory and output format
         main_directory = self.config['main_directory']
@@ -125,11 +126,12 @@ class Camera:
             os.makedirs(directory_path)
 
         with picamera.PiCamera() as camera:
+            # noinspection PyBroadException
             try:
                 self._setup_camera(camera)
                 self._capture_image(camera, directory_path)
-            # except:
-            # TODO AEO log error
+            except Exception:
+                self._log(str(sys.exc_info()))
             finally:
                 camera.close()
                 self._log('Camera Closed')
@@ -138,12 +140,12 @@ class Camera:
         self._log(f'sleeping for {wait_time} seconds')
         sleep(wait_time)
 
-    def start_motion_capture_loop(self):
+    def start_camera_loop(self):
 
         do_loop = self.config['do_loop']
 
         while True:
-            self._do_motion_capture()
+            self._shoot_camera()
 
             if not do_loop:
                 break
