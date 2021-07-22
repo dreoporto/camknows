@@ -5,19 +5,23 @@ import sys
 import uuid
 from fractions import Fraction
 from time import sleep
+from typing import Any
 
+# TODO AEO remove for cv2 and numpy
+# noinspection PyUnresolvedReferences
 import cv2
+# noinspection PyUnresolvedReferences
 import numpy as np
-
 # noinspection PyUnresolvedReferences
 import picamera
 
 CONFIG_FILE = 'dre_moe_config.json'
 
-# TODO AEO NEXT: create LOG utility with LEVEL(INFO, DEBUG, STATUS, WARN, ERROR) and OUTPUT (print, file) options
+# TODO AEO create LOG utility with LEVEL(INFO, DEBUG, STATUS, WARN, ERROR) and OUTPUT (print, file) options
 # defer and add to Notion board?
 
 
+# noinspection PyBroadException
 class Camera:
 
     def __init__(self):
@@ -29,14 +33,14 @@ class Camera:
         self.previous_processed_image = None
         self.diff_threshold = self.config['diff_threshold']  # 5000000
 
-    def _setup_camera(self, camera) -> None:
+    def _setup_camera(self, camera: Any) -> None:
 
         self._log('Setup PiCamera')
         resolution_width = self.config['resolution_width']
         resolution_height = self.config['resolution_height']
         camera.rotation = self.config['rotation']
         camera.resolution = (resolution_width, resolution_height)
-        camera.led = False
+        camera.led = self.config['enable_led']
 
         if self.config['enable_manual_mode']:
             # useful for low light settings
@@ -49,7 +53,7 @@ class Camera:
 
         self._print_camera_settings(camera)
 
-    def _print_camera_settings(self, camera):
+    def _print_camera_settings(self, camera: Any) -> None:
 
         if not self.config['print_camera_settings']:
             return
@@ -64,7 +68,7 @@ class Camera:
         self._log(f'framerate\t\t\t{camera.framerate}')
         self._log(f'framerate_range\t\t\t{camera.framerate_range}')
 
-    def _capture_image(self, camera, directory_path: str) -> None:
+    def _capture_image(self, camera: Any, directory_path: str) -> None:
 
         # allow awb to catch up
         awb_delay = self.config['awb_delay']
@@ -87,7 +91,7 @@ class Camera:
 
         self._log('Photo Complete')
 
-    def _check_for_motion(self, image_file: str):
+    def _check_for_motion(self, image_file: str) -> None:
 
         processed_image = cv2.imread(image_file)
         processed_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
@@ -113,9 +117,10 @@ class Camera:
             self.previous_processed_image = processed_image
         else:
             # no change or time lapse; remove file
+            self._log(f'No change, removing image: {image_file.split("/")[-1]}')
             os.remove(image_file)
 
-    def _shoot_camera(self):
+    def _shoot_camera(self, camera: Any) -> None:
 
         # setup directory and output format
         main_directory = self.config['main_directory']
@@ -125,33 +130,36 @@ class Camera:
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
 
+        try:
+            self._setup_camera(camera)
+            self._capture_image(camera, directory_path)
+        except Exception:
+            self._log(str(sys.exc_info()))
+
+        wait_time = self.config['wait_time']
+        self._log(f'sleeping for {wait_time} seconds')
+        sleep(wait_time)
+
+    def start_camera_loop(self) -> None:
+
+        do_loop = self.config['do_loop']
+
         with picamera.PiCamera() as camera:
-            # noinspection PyBroadException
+
             try:
-                self._setup_camera(camera)
-                self._capture_image(camera, directory_path)
+                while True:
+                    self._shoot_camera(camera)
+
+                    if not do_loop:
+                        break
             except Exception:
                 self._log(str(sys.exc_info()))
             finally:
                 camera.close()
                 self._log('Camera Closed')
 
-        wait_time = self.config['wait_time']
-        self._log(f'sleeping for {wait_time} seconds')
-        sleep(wait_time)
-
-    def start_camera_loop(self):
-
-        do_loop = self.config['do_loop']
-
-        while True:
-            self._shoot_camera()
-
-            if not do_loop:
-                break
-
-    def _get_timestamp(self):
+    def _get_timestamp(self) -> str:
         return datetime.datetime.now().strftime(self.config['timestamp_format'])
 
-    def _log(self, message: str):
+    def _log(self, message: str) -> None:
         print(f'{self._get_timestamp()}\t{message}')
