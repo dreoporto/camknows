@@ -107,7 +107,7 @@ class Camera:
         time_diff = 0
 
         if diff_score > self.diff_threshold:
-            self._log(f'motion detected:{image_file}\tdiff score:{diff_score}')
+            self._log(f'motion detected:{image_file.split("/")[-1]}\tdiff score:{diff_score}')
             # debugging only!
             # cv2.imwrite(image_file.replace('.', '_p0.'), processed_image)
             # cv2.imwrite(image_file.replace('.', '_p1.'), self.previous_processed_image)
