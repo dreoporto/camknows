@@ -31,15 +31,15 @@ class Camera:
             self.config = json.load(json_file)
 
         self.previous_processed_image = None
-        self.diff_threshold = self.config['diff_threshold']  # 5000000
+        self.diff_threshold = self.config['diff_threshold']
+        self.resolution_width = self.config['resolution_width']
+        self.resolution_height = self.config['resolution_height']
 
     def _setup_camera(self, camera: Any) -> None:
 
         self._log('Setup PiCamera')
-        resolution_width = self.config['resolution_width']
-        resolution_height = self.config['resolution_height']
         camera.rotation = self.config['rotation']
-        camera.resolution = (resolution_width, resolution_height)
+        camera.resolution = (self.resolution_width, self.resolution_height)
         camera.led = self.config['enable_led']
 
         if self.config['enable_manual_mode']:
@@ -68,36 +68,36 @@ class Camera:
         self._log(f'framerate\t\t\t{camera.framerate}')
         self._log(f'framerate_range\t\t\t{camera.framerate_range}')
 
-    def _capture_image(self, camera: Any, directory_path: str) -> None:
+    def _capture_image(self, camera: Any) -> None:
 
         # allow awb to catch up
         awb_delay = self.config['awb_delay']
         self._log(f'AWB Delay for {awb_delay} seconds')
         sleep(awb_delay)
 
-        self._log('Taking Photo...')
+        self._log('Capturing Image...')
         if self.config['show_timestamp']:
             camera.annotate_background = picamera.Color('black')
             camera.annotate_text = self._get_timestamp()
 
-        image_file = self.config['image_file']
-        time_suffix = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-        filename = f'{image_file}-{time_suffix}-{str(uuid.uuid4())[:8]}.jpg'
-        filepath = os.path.join(directory_path, filename)
+        # capturing this now: we want exact times for file and image timestamps
+        timestamp_filename = datetime.datetime.now().strftime(self.config['timestamp_filename_format'])
 
-        # TODO AEO can we do this in-memory and avoid writing a file?
-        camera.capture(filepath)
-        self._check_for_motion(filepath)
+        image_array = np.empty((self.resolution_height * self.resolution_width * 3,), dtype=np.uint8)
+        camera.capture(image_array, 'bgr')
+        image_array = image_array.reshape((self.resolution_height, self.resolution_width, 3))
+        self._check_for_motion(image_array, timestamp_filename)
 
-        self._log('Photo Complete')
+        self._log('Image Capture Complete')
 
-    def _check_for_motion(self, image_file: str) -> None:
+    def _check_for_motion(self, image_array: Any, timestamp_filename: str) -> None:
 
-        processed_image = cv2.imread(image_file)
-        processed_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
+        processed_image = cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY)
         processed_image = cv2.blur(processed_image, (20, 20))
 
         if self.previous_processed_image is None:
+            # save first image!
+            self._save_image_from_motion(image_array, timestamp_filename)
             self.previous_processed_image = processed_image
             return
 
@@ -105,18 +105,12 @@ class Camera:
         diff_score = np.sum(images_diff)
 
         if diff_score > self.diff_threshold:
-            self._log(f'motion detected:{image_file.split("/")[-1]}\tdiff score:{diff_score}')
-            # debugging only!
-            # cv2.imwrite(image_file.replace('.', '_p0.'), processed_image)
-            # cv2.imwrite(image_file.replace('.', '_p1.'), self.previous_processed_image)
-        else:
-            # no change or time lapse; remove file
-            self._log(f'No change, removing image: {image_file.split("/")[-1]}')
-            os.remove(image_file)
+            self._log(f'motion detected:{self._get_timestamp()}\tdiff score:{diff_score}')
+            self._save_image_from_motion(image_array, timestamp_filename)
 
         self.previous_processed_image = processed_image
 
-    def _shoot_camera(self, camera: Any) -> None:
+    def _save_image_from_motion(self, image_array: Any, timestamp_filename: str):
 
         # setup directory and output format
         main_directory = self.config['main_directory']
@@ -126,9 +120,23 @@ class Camera:
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
 
+        image_file_prefix = self.config['image_file_prefix']
+        filename = f'{image_file_prefix}-{timestamp_filename}-{str(uuid.uuid4())[:8]}.jpg'
+        image_full_path = os.path.join(directory_path, filename)
+
+        self._log(f'Writing file:{image_full_path}')
+        cv2.imwrite(image_full_path, image_array)
+        # debugging only!
+        # cv2.imwrite(image_file.replace('.', '_p0.'), processed_image)
+        # cv2.imwrite(image_file.replace('.', '_p1.'), self.previous_processed_image)
+
+        self._log(f'File created:{filename.split("/")[-1]}')
+
+    def _shoot_camera(self, camera: Any) -> None:
+
         try:
             self._setup_camera(camera)
-            self._capture_image(camera, directory_path)
+            self._capture_image(camera)
         except Exception:
             self._log(str(sys.exc_info()))
 
