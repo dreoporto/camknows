@@ -104,21 +104,17 @@ class Camera:
         images_diff = cv2.absdiff(self.previous_processed_image, processed_image)
         diff_score = np.sum(images_diff)
 
-        time_diff = 0
-
         if diff_score > self.diff_threshold:
             self._log(f'motion detected:{image_file.split("/")[-1]}\tdiff score:{diff_score}')
             # debugging only!
             # cv2.imwrite(image_file.replace('.', '_p0.'), processed_image)
             # cv2.imwrite(image_file.replace('.', '_p1.'), self.previous_processed_image)
-            self.previous_processed_image = processed_image
-        elif time_diff > 0:
-            # TODO AEO also check elapsed time
-            self.previous_processed_image = processed_image
         else:
             # no change or time lapse; remove file
             self._log(f'No change, removing image: {image_file.split("/")[-1]}')
             os.remove(image_file)
+
+        self.previous_processed_image = processed_image
 
     def _shoot_camera(self, camera: Any) -> None:
 
