@@ -17,5 +17,6 @@
     "timestamp_format": "%Y-%m-%d %H:%M:%S",
     "timestamp_filename_format": "%Y-%m-%d-%H-%M-%S",
     "diff_threshold": 5000000,
-    "enable_led": false
+    "enable_led": false,
+    "time_lapse_seconds": 3600
 }

@@ -2,6 +2,7 @@ import datetime
 import json
 import os
 import sys
+import time
 import uuid
 from fractions import Fraction
 from time import sleep
@@ -30,10 +31,11 @@ class Camera:
         with open(os.path.join(self.script_directory, CONFIG_FILE)) as json_file:
             self.config = json.load(json_file)
 
-        self.previous_processed_image = None
-        self.diff_threshold = self.config['diff_threshold']
-        self.resolution_width = self.config['resolution_width']
-        self.resolution_height = self.config['resolution_height']
+        self.last_image_time: float
+        self.previous_processed_image: Any = None
+        self.diff_threshold: int = self.config['diff_threshold']
+        self.resolution_width: int = self.config['resolution_width']
+        self.resolution_height: int = self.config['resolution_height']
 
     def _setup_camera(self, camera: Any) -> None:
 
@@ -107,6 +109,11 @@ class Camera:
         if diff_score > self.diff_threshold:
             self._log(f'motion detected:{self._get_timestamp()}\tdiff score:{diff_score}')
             self._save_image_from_motion(image_array, timestamp_filename)
+        elif (self.config['time_lapse_seconds'] != 0
+              and time.time() - self.last_image_time > self.config['time_lapse_seconds']):
+            # we will also save the image if the time lapse is set and expired
+            self._log(f'time elapsed:{self._get_timestamp()}')
+            self._save_image_from_motion(image_array, timestamp_filename)
 
         self.previous_processed_image = processed_image
 
@@ -131,6 +138,7 @@ class Camera:
         # cv2.imwrite(image_file.replace('.', '_p1.'), self.previous_processed_image)
 
         self._log(f'File created:{filename.split("/")[-1]}')
+        self.last_image_time = time.time()
 
     def _shoot_camera(self, camera: Any) -> None:
 
