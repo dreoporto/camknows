@@ -18,6 +18,8 @@ class VideoProcessor:
             if image.endswith(f'.{extension}'):
                 images_list.append(image)
 
+        images_list.sort()
+
         print(f'Processing {len(images_list)} images')
 
         character_code = cv2.VideoWriter_fourcc(*'MP4V')
@@ -43,8 +45,9 @@ class VideoProcessor:
 
 
 def main():
-    images_directory = 'media-files/2021/07/19'
-    output_file = 'video.mp4'
+    # TODO AEO add command line args
+    images_directory = 'media-files/2021/07/25'
+    output_file = 'video-20210725.mp4'
     extension = 'jpg'
 
     processor = VideoProcessor()
