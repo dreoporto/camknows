@@ -18,8 +18,7 @@ import picamera
 
 CONFIG_FILE = 'dre_moe_config.json'
 
-# TODO AEO create LOG utility with LEVEL(INFO, DEBUG, STATUS, WARN, ERROR) and OUTPUT (print, file) options
-# defer and add to Notion board?
+# TODO AEO add python logging in place of print usage
 
 
 # noinspection PyBroadException
@@ -51,7 +50,8 @@ class Camera:
             framerate_range_from = Fraction(self.config['manual_framerate_range_from'])
             framerate_range_to = Fraction(self.config['manual_framerate_range_to'])
             camera.framerate_range = (framerate_range_from, framerate_range_to)
-            camera.shutter_speed = self.config['manual_shutter_speed']
+            camera.awb_mode = self.config['awb_mode']
+            camera.awb_gains = (self.config['awb_gains_red'], self.config['awb_gains_blue'])
 
         self._print_camera_settings(camera)
 
@@ -69,6 +69,8 @@ class Camera:
         self._log(f'exposure_mode\t\t\t{camera.exposure_mode}')
         self._log(f'framerate\t\t\t{camera.framerate}')
         self._log(f'framerate_range\t\t\t{camera.framerate_range}')
+        self._log(f'awb_mode:\t\t\t{camera.awb_mode}')
+        self._log(f'awb_gains:\t\t\t{camera.awb_gains}')
 
     def _capture_image(self, camera: Any) -> None:
 
