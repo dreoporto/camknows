@@ -15,7 +15,7 @@
     "manual_shutter_speed": 0,
     "print_camera_settings": false,
     "timestamp_format": "%Y-%m-%d %H:%M:%S",
-    "timestamp_filename_format": "%Y-%m-%d-%H-%M-%S",
+    "timestamp_filename_format": "%Y-%m-%d-%H-%M-%S-%f",
     "diff_threshold": 5000000,
     "enable_led": false,
     "time_lapse_seconds": 3600,
