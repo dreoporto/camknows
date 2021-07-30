@@ -44,14 +44,15 @@ class Camera:
         camera.led = self.config['enable_led']
 
         if self.config['enable_manual_mode']:
-            # useful for low light settings
-            # ex: framerate range (Fraction(1, 6), Fraction(30, 1)) allows slow shutter speed
+            # useful for consistent images and low light settings
+            # ex: framerate range (Fraction(1, 6), Fraction(30, 1)) allows for slower shutter speeds for low light
             camera.iso = self.config['manual_iso']
             framerate_range_from = Fraction(self.config['manual_framerate_range_from'])
             framerate_range_to = Fraction(self.config['manual_framerate_range_to'])
             camera.framerate_range = (framerate_range_from, framerate_range_to)
-            camera.awb_mode = self.config['awb_mode']
-            camera.awb_gains = (self.config['awb_gains_red'], self.config['awb_gains_blue'])
+            camera.shutter_speed = self.config['manual_shutter_speed']
+            camera.awb_mode = self.config['manual_awb_mode']
+            camera.awb_gains = (self.config['manual_awb_gains_red'], self.config['manual_awb_gains_blue'])
 
         self._print_camera_settings(camera)
 
