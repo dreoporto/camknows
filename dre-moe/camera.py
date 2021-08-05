@@ -111,7 +111,7 @@ class Camera:
 
         if diff_score > self.diff_threshold:
             self._log(f'motion detected:{self._get_timestamp()}\tdiff score:{diff_score}')
-            self._save_image_from_motion(image_array, timestamp_filename)
+            self._save_image_from_motion(image_array, timestamp_filename, processed_image)
         elif (self.config['time_lapse_seconds'] != 0
               and time.time() - self.last_image_time > self.config['time_lapse_seconds']):
             # we will also save the image if the time lapse is set and expired
@@ -120,7 +120,7 @@ class Camera:
 
         self.previous_processed_image = processed_image
 
-    def _save_image_from_motion(self, image_array: Any, timestamp_filename: str):
+    def _save_image_from_motion(self, image_array: Any, timestamp_filename: str, processed_image_array: Any = None):
 
         # setup directory and output format
         main_directory = self.config['main_directory']
@@ -136,12 +136,22 @@ class Camera:
 
         self._log(f'Writing file:{image_full_path}')
         cv2.imwrite(image_full_path, image_array)
-        # debugging only!
-        # cv2.imwrite(image_file.replace('.', '_p0.'), processed_image)
-        # cv2.imwrite(image_file.replace('.', '_p1.'), self.previous_processed_image)
 
         self._log(f'File created:{filename.split("/")[-1]}')
         self.last_image_time = time.time()
+
+        # save processed images if debug enabled
+        if self.config['enable_image_debugging'] and processed_image_array is not None:
+
+            processed_directory_path = os.path.join(directory_path, 'processed')
+
+            if not os.path.exists(processed_directory_path):
+                os.makedirs(processed_directory_path)
+
+            processed_image_path = os.path.join(processed_directory_path, filename)
+
+            cv2.imwrite(processed_image_path.replace('.jpg', '_p0.jpg'), self.previous_processed_image)
+            cv2.imwrite(processed_image_path.replace('.jpg', '_p1.jpg'), processed_image_array)
 
     def _shoot_camera(self, camera: Any) -> None:
 
