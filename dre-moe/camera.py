@@ -31,12 +31,18 @@ class Camera:
             self.config = json.load(json_file)
 
         self.last_image_time: float
+        self.last_setup_time: float = 0
         self.previous_processed_image: Any = None
         self.diff_threshold: int = self.config['diff_threshold']
         self.resolution_width: int = self.config['resolution_width']
         self.resolution_height: int = self.config['resolution_height']
 
     def _setup_camera(self, camera: Any) -> None:
+
+        if (self.config['setup_timeout_seconds'] != 0
+                and time.time() - self.last_setup_time <= self.config['setup_timeout_seconds']):
+            # setup timeout configured, and not expired; skip setup
+            return
 
         self._log('Setup PiCamera')
         camera.rotation = self.config['rotation']
@@ -50,11 +56,17 @@ class Camera:
             framerate_range_from = Fraction(self.config['manual_framerate_range_from'])
             framerate_range_to = Fraction(self.config['manual_framerate_range_to'])
             camera.framerate_range = (framerate_range_from, framerate_range_to)
-            # TODO AEO TEMP camera.shutter_speed = self.config['manual_shutter_speed']
+            # TODO AEO DISABLE FOR NOW camera.shutter_speed = self.config['manual_shutter_speed']
             camera.awb_mode = self.config['manual_awb_mode']
             camera.awb_gains = (self.config['manual_awb_gains_red'], self.config['manual_awb_gains_blue'])
 
+        # allow awb to catch up
+        awb_delay = self.config['awb_delay']
+        self._log(f'AWB Delay for {awb_delay} seconds')
+        sleep(awb_delay)
+
         self._print_camera_settings(camera)
+        self.last_setup_time = time.time()
 
     def _print_camera_settings(self, camera: Any) -> None:
 
@@ -75,10 +87,7 @@ class Camera:
 
     def _capture_image(self, camera: Any) -> None:
 
-        # allow awb to catch up
-        awb_delay = self.config['awb_delay']
-        self._log(f'AWB Delay for {awb_delay} seconds')
-        sleep(awb_delay)
+        perf_start_time = time.perf_counter()
 
         self._log('Capturing Image...')
         if self.config['show_timestamp']:
@@ -91,11 +100,17 @@ class Camera:
         image_array = np.empty((self.resolution_height * self.resolution_width * 3,), dtype=np.uint8)
         camera.capture(image_array, 'bgr')
         image_array = image_array.reshape((self.resolution_height, self.resolution_width, 3))
+
+        self._log(f'Image Capture Complete')
+        self._log(f'Elapsed Seconds: {time.perf_counter() - perf_start_time:0.4f}')
+
         self._check_for_motion(image_array, timestamp_filename)
 
-        self._log('Image Capture Complete')
-
     def _check_for_motion(self, image_array: Any, timestamp_filename: str) -> None:
+
+        perf_start_time = time.perf_counter()
+
+        self._log('Check for motion...')
 
         processed_image = cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY)
         processed_image = cv2.blur(processed_image, (20, 20))
@@ -119,6 +134,9 @@ class Camera:
             self._save_image_from_motion(image_array, timestamp_filename)
 
         self.previous_processed_image = processed_image
+
+        self._log(f'Motion Check Complete')
+        self._log(f'Elapsed Seconds: {time.perf_counter() - perf_start_time:0.4f}')
 
     def _save_image_from_motion(self, image_array: Any, timestamp_filename: str, processed_image_array: Any = None):
 

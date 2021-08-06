@@ -22,5 +22,6 @@
     "diff_threshold": 5000000,
     "enable_led": false,
     "time_lapse_seconds": 3600,
+    "setup_timeout_seconds": 1290,
     "enable_image_debugging": false
 }
