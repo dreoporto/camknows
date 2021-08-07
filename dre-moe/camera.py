@@ -126,7 +126,7 @@ class Camera:
 
         if diff_score > self.diff_threshold:
             self._log(f'motion detected:{self._get_timestamp()}\tdiff score:{diff_score}')
-            self._save_image_from_motion(image_array, timestamp_filename, processed_image)
+            self._save_image_from_motion(image_array, timestamp_filename, processed_image, diff_score)
         elif (self.config['time_lapse_seconds'] != 0
               and time.time() - self.last_image_time > self.config['time_lapse_seconds']):
             # we will also save the image if the time lapse is set and expired
@@ -138,7 +138,8 @@ class Camera:
         self._log(f'Motion Check Complete')
         self._log(f'Elapsed Seconds: {time.perf_counter() - perf_start_time:0.4f}')
 
-    def _save_image_from_motion(self, image_array: Any, timestamp_filename: str, processed_image_array: Any = None):
+    def _save_image_from_motion(self, image_array: Any, timestamp_filename: str, processed_image_array: Any = None,
+                                diff_score: Any = None):
 
         # setup directory and output format
         main_directory = self.config['main_directory']
@@ -149,7 +150,8 @@ class Camera:
             os.makedirs(directory_path)
 
         image_file_prefix = self.config['image_file_prefix']
-        filename = f'{image_file_prefix}-{timestamp_filename}-{str(uuid.uuid4())[:8]}.jpg'
+        image_file_suffix: str = str(uuid.uuid4())[:8] if diff_score is None else str(diff_score)
+        filename = f'{image_file_prefix}-{timestamp_filename}-{image_file_suffix}.jpg'
         image_full_path = os.path.join(directory_path, filename)
 
         self._log(f'Writing file:{image_full_path}')
