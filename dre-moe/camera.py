@@ -98,7 +98,7 @@ class Camera:
         timestamp_filename = datetime.datetime.now().strftime(self.config['timestamp_filename_format'])
 
         image_array = np.empty((self.resolution_height * self.resolution_width * 3,), dtype=np.uint8)
-        camera.capture(image_array, 'bgr')
+        camera.capture(image_array, 'bgr', use_video_port=self.config['use_video_port'])
         image_array = image_array.reshape((self.resolution_height, self.resolution_width, 3))
 
         self._log(f'Image Capture Complete')
