@@ -150,7 +150,8 @@ class Camera:
             os.makedirs(directory_path)
 
         image_file_prefix = self.config['image_file_prefix']
-        image_file_suffix: str = (str(uuid.uuid4())[:8] if diff_score is None
+        diff_score_in_filename = self.config['diff_score_in_filename']
+        image_file_suffix: str = (str(uuid.uuid4())[:8] if (diff_score is None or not diff_score_in_filename)
                                   else '{0:,d}'.format(diff_score).replace(',', '.'))
         filename = f'{image_file_prefix}-{timestamp_filename}-{image_file_suffix}.jpg'
         image_full_path = os.path.join(directory_path, filename)
