@@ -7,6 +7,8 @@ import uuid
 from threading import Thread
 from typing import Any, Tuple
 
+# TODO AEO remove for cv2 and numpy
+# noinspection PyUnresolvedReferences
 import cv2
 # noinspection PyUnresolvedReferences
 import numpy as np
