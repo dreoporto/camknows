@@ -1,8 +1,10 @@
 import datetime
 import json
+import logging
 import os
 import sys
 import time
+import traceback
 import uuid
 from fractions import Fraction
 from time import sleep
@@ -18,13 +20,13 @@ import picamera
 
 CONFIG_FILE = 'dre_moe_config.json'
 
-# TODO AEO add python logging in place of print usage
-
 
 # noinspection PyBroadException
 class Camera:
 
     def __init__(self):
+        logging.basicConfig(filename='dre_moe.log', level=logging.ERROR)
+
         self.script_directory = os.path.dirname(os.path.abspath(__file__))
 
         with open(os.path.join(self.script_directory, CONFIG_FILE)) as json_file:
@@ -181,7 +183,7 @@ class Camera:
             self._setup_camera(camera)
             self._capture_image(camera)
         except Exception:
-            self._log(str(sys.exc_info()))
+            self._log(traceback.format_exc(), logging.ERROR)
 
         wait_time = self.config['wait_time']
         self._log(f'sleeping for {wait_time} seconds')
@@ -200,7 +202,7 @@ class Camera:
                     if not do_loop:
                         break
             except Exception:
-                self._log(str(sys.exc_info()))
+                self._log(traceback.format_exc(), logging.ERROR)
             finally:
                 camera.close()
                 self._log('Camera Closed')
@@ -208,5 +210,8 @@ class Camera:
     def _get_timestamp(self) -> str:
         return datetime.datetime.now().strftime(self.config['timestamp_format'])
 
-    def _log(self, message: str) -> None:
-        print(f'{self._get_timestamp()}\t{message}')
+    def _log(self, message: str, level=logging.NOTSET) -> None:
+        formatted_message = f'{self._get_timestamp()}\t{message}'
+        if level != logging.NOTSET:
+            logging.log(level, formatted_message)
+        print(formatted_message)
