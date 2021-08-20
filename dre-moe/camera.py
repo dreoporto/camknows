@@ -92,9 +92,10 @@ class Camera:
         perf_start_time = time.perf_counter()
 
         self._log('Capturing Image...')
-        if self.config['show_timestamp']:
+        if self.config['show_image_timestamp']:
             camera.annotate_background = picamera.Color('black')
             camera.annotate_text = self._get_timestamp()
+            camera.annotate_text_size = self.config['image_timestamp_text_size']
 
         # capturing this now: we want exact times for file and image timestamps
         timestamp_filename = datetime.datetime.now().strftime(self.config['timestamp_filename_format'])
