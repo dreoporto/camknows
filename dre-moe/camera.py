@@ -2,7 +2,6 @@ import datetime
 import json
 import logging
 import os
-import sys
 import time
 import traceback
 import uuid
@@ -19,15 +18,16 @@ import numpy as np
 import picamera
 
 CONFIG_FILE = 'dre_moe_config.json'
+LOG_FILE = 'dre_moe.log'
 
 
 # noinspection PyBroadException
 class Camera:
 
     def __init__(self):
-        logging.basicConfig(filename='dre_moe.log', level=logging.ERROR)
-
         self.script_directory = os.path.dirname(os.path.abspath(__file__))
+
+        logging.basicConfig(filename=os.path.join(self.script_directory, LOG_FILE), level=logging.INFO)
 
         with open(os.path.join(self.script_directory, CONFIG_FILE)) as json_file:
             self.config = json.load(json_file)
@@ -118,7 +118,8 @@ class Camera:
         processed_image = cv2.blur(processed_image, (20, 20))
 
         if self.previous_processed_image is None:
-            # save first image!
+            # save and set first image!
+            self._log(f'saving first image', logging.INFO)
             self._save_image_from_motion(image_array, timestamp_filename)
             self.previous_processed_image = processed_image
             return
@@ -127,12 +128,12 @@ class Camera:
         diff_score = np.sum(images_diff)
 
         if diff_score > self.diff_threshold:
-            self._log(f'motion detected:{self._get_timestamp()}\tdiff score:{diff_score}')
+            self._log(f'motion detected; diff score:{diff_score:,d}', logging.INFO)
             self._save_image_from_motion(image_array, timestamp_filename, processed_image, diff_score)
         elif (self.config['time_lapse_seconds'] != 0
               and time.time() - self.last_image_time > self.config['time_lapse_seconds']):
             # we will also save the image if the time lapse is set and expired
-            self._log(f'time elapsed:{self._get_timestamp()}')
+            self._log(f'time elapsed; saving image', logging.INFO)
             self._save_image_from_motion(image_array, timestamp_filename)
 
         self.previous_processed_image = processed_image
