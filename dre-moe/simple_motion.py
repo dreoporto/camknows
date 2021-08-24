@@ -4,6 +4,7 @@
 import datetime
 import os
 import uuid
+from time import sleep
 from threading import Thread
 from typing import Any, Tuple
 
@@ -25,16 +26,22 @@ images_folder = os.path.join(script_directory, 'simple_motion_images')
 image_file_prefix = 'motion'
 image_file_suffix_old = '0-old'
 image_file_suffix = '1-new'
-save_raw_enabled = False
+save_raw_enabled = True
 save_old_enabled = True
 log_only = False
+resolution_width = 640
+resolution_height = 480
+video_framerate = 32
 
 if not os.path.exists(images_folder):
     os.makedirs(images_folder)
 
 print('Begin Video Stream')
 
-vs = VideoStream(src=0).start()
+vs = VideoStream(src=0, usePiCamera=True, resolution=(resolution_width, resolution_height),
+                 framerate=video_framerate).start()
+# allow for camera warmup
+sleep(3)
 
 
 def get_image() -> Tuple[Any, Any]:
@@ -48,20 +55,23 @@ def get_image() -> Tuple[Any, Any]:
 def save_image(new_image: Any, diff_score: Any, timestamp_filename: str, suffix: str = image_file_suffix) -> None:
     diff_score_formatted = '{0:,d}'.format(diff_score).replace(',', '.')
     filename = f'{image_file_prefix}-{timestamp_filename}-{diff_score_formatted}-{suffix}-{str(uuid.uuid4())[:8]}.jpg'
-    print(f'filename:{filename}')
+    print(f'Saving File: {filename}')
     if log_only:
         return
     image_full_path = os.path.join(images_folder, filename)
-    cv2.imwrite(image_full_path, new_image)
+    # use threading for disk io latency
+    image_data = new_image.copy()
+    thread = Thread(target=cv2.imwrite, args=(image_full_path, image_data))
+    thread.start()
 
 
 def main() -> None:
     print('Get First Image')
 
-    prior_saved = False
+    prior_saved = False  # avoids saving redundant images for prior/old image
     old_image, _ = get_image()
 
-    print('Monitoring for Motion!')
+    print('Monitoring for Motion')
 
     while True:
         new_image, raw_image = get_image()
@@ -75,17 +85,11 @@ def main() -> None:
             # print(f"Movement detected; Diff Score:{diff_score}")
             timestamp_filename = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
             if save_raw_enabled:
-                # save_image(raw_image, diff_score, timestamp_filename)
-                thread = Thread(target=save_image, args=(raw_image, diff_score, timestamp_filename))
-                thread.start()
+                save_image(raw_image, diff_score, timestamp_filename)
             else:
-                # save_image(new_image, diff_score, timestamp_filename)
                 if not prior_saved and save_old_enabled:
-                    thread0 = Thread(target=save_image, args=(old_image, diff_score, timestamp_filename,
-                                                              image_file_suffix_old))
-                    thread0.start()
-                thread = Thread(target=save_image, args=(new_image, diff_score, timestamp_filename))
-                thread.start()
+                    save_image(old_image, diff_score, timestamp_filename, image_file_suffix_old)
+                save_image(new_image, diff_score, timestamp_filename)
             prior_saved = True
         else:
             prior_saved = False
