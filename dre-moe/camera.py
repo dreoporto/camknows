@@ -77,7 +77,7 @@ class Camera:
             # setup timeout configured, and not expired; skip setup
             return
 
-        self._log('Setup PiCamera')
+        self._log('Setup PiCamera', logging.INFO)
         camera.rotation = self.config['rotation']
         camera.resolution = (self.resolution_width, self.resolution_height)
         camera.led = self.config['enable_led']
@@ -95,7 +95,7 @@ class Camera:
 
         # allow awb to catch up
         awb_delay = self.config['awb_delay']
-        self._log(f'AWB Delay for {awb_delay} seconds')
+        self._log(f'AWB Delay for {awb_delay} seconds', logging.INFO)
         sleep(awb_delay)
 
         self._print_camera_settings(camera)
