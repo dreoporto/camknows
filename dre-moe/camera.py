@@ -6,6 +6,7 @@ import time
 import traceback
 import uuid
 from fractions import Fraction
+from threading import Thread
 from time import sleep
 from typing import Any
 
@@ -160,24 +161,39 @@ class Camera:
         filename = f'{image_file_prefix}-{timestamp_filename}-{image_file_suffix}.jpg'
         image_full_path = os.path.join(directory_path, filename)
 
-        self._log(f'Writing file:{image_full_path}')
-        cv2.imwrite(image_full_path, image_array)
-
-        self._log(f'File created:{filename.split("/")[-1]}')
+        self._write_image_file_async(image_full_path, image_array)
         self.last_image_time = time.time()
 
-        # save processed images if debug enabled
-        if self.config['enable_image_debugging'] and processed_image_array is not None:
+        self._save_processed_images(directory_path, filename, processed_image_array)
 
-            processed_directory_path = os.path.join(directory_path, 'processed')
+    def _save_processed_images(self, directory_path: str, filename: str, processed_image_array: Any) -> None:
+        """
+        save processed images if debug enabled
+        """
+        if not self.config['enable_image_debugging'] or processed_image_array is None:
+            return
 
-            if not os.path.exists(processed_directory_path):
-                os.makedirs(processed_directory_path)
+        processed_directory_path = os.path.join(directory_path, 'processed')
 
-            processed_image_path = os.path.join(processed_directory_path, filename)
+        if not os.path.exists(processed_directory_path):
+            os.makedirs(processed_directory_path)
 
-            cv2.imwrite(processed_image_path.replace('.jpg', '_p0.jpg'), self.previous_processed_image)
-            cv2.imwrite(processed_image_path.replace('.jpg', '_p1.jpg'), processed_image_array)
+        processed_image_path = os.path.join(processed_directory_path, filename)
+
+        self._write_image_file_async(processed_image_path.replace('.jpg', '_p0.jpg'), self.previous_processed_image)
+        self._write_image_file_async(processed_image_path.replace('.jpg', '_p1.jpg'), processed_image_array)
+
+    def _write_image_file_async(self, image_full_path: str, image_array: Any) -> None:
+        """
+        use threading to write image file and avoid disk io delay
+        """
+        self._log(f'Writing file:{image_full_path}')
+
+        image_data = image_array.copy()
+        thread = Thread(target=cv2.imwrite, args=(image_full_path, image_data))
+        thread.start()
+
+        self._log(f'File created:{image_full_path.split("/")[-1]}')
 
     def _shoot_camera(self, camera: Any) -> None:
 
@@ -213,7 +229,8 @@ class Camera:
         return datetime.datetime.now().strftime(self.config['timestamp_format'])
 
     def _log(self, message: str, level=logging.NOTSET) -> None:
+        if level == logging.NOTSET:
+            return
         formatted_message = f'{self._get_timestamp()}\t{message}'
-        if level != logging.NOTSET:
-            logging.log(level, formatted_message)
+        logging.log(level, formatted_message)
         print(formatted_message)
