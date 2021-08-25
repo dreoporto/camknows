@@ -40,6 +40,36 @@ class Camera:
         self.resolution_width: int = self.config['resolution_width']
         self.resolution_height: int = self.config['resolution_height']
 
+    def start_camera_loop(self) -> None:
+
+        do_loop = self.config['do_loop']
+
+        with picamera.PiCamera() as camera:
+
+            try:
+                while True:
+                    self._run_camera(camera)
+
+                    if not do_loop:
+                        break
+            except Exception:
+                self._log(traceback.format_exc(), logging.ERROR)
+            finally:
+                camera.close()
+                self._log('Camera Closed')
+
+    def _run_camera(self, camera: Any) -> None:
+
+        try:
+            self._setup_camera(camera)
+            self._capture_image_with_motion_detection(camera)
+        except Exception:
+            self._log(traceback.format_exc(), logging.ERROR)
+
+        wait_time = self.config['wait_time']
+        self._log(f'sleeping for {wait_time} seconds')
+        sleep(wait_time)
+
     def _setup_camera(self, camera: Any) -> None:
 
         if (self.config['setup_timeout_seconds'] != 0
@@ -88,7 +118,7 @@ class Camera:
         self._log(f'awb_mode:\t\t\t{camera.awb_mode}')
         self._log(f'awb_gains:\t\t\t{camera.awb_gains}')
 
-    def _capture_image(self, camera: Any) -> None:
+    def _capture_image_with_motion_detection(self, camera: Any) -> None:
 
         perf_start_time = time.perf_counter()
 
@@ -194,36 +224,6 @@ class Camera:
         thread.start()
 
         self._log(f'File created:{image_full_path.split("/")[-1]}')
-
-    def _shoot_camera(self, camera: Any) -> None:
-
-        try:
-            self._setup_camera(camera)
-            self._capture_image(camera)
-        except Exception:
-            self._log(traceback.format_exc(), logging.ERROR)
-
-        wait_time = self.config['wait_time']
-        self._log(f'sleeping for {wait_time} seconds')
-        sleep(wait_time)
-
-    def start_camera_loop(self) -> None:
-
-        do_loop = self.config['do_loop']
-
-        with picamera.PiCamera() as camera:
-
-            try:
-                while True:
-                    self._shoot_camera(camera)
-
-                    if not do_loop:
-                        break
-            except Exception:
-                self._log(traceback.format_exc(), logging.ERROR)
-            finally:
-                camera.close()
-                self._log('Camera Closed')
 
     def _get_timestamp(self) -> str:
         return datetime.datetime.now().strftime(self.config['timestamp_format'])
