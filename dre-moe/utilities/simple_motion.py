@@ -8,14 +8,9 @@ from time import sleep
 from threading import Thread
 from typing import Any, Tuple
 
-# TODO AEO remove for cv2 and numpy
-# noinspection PyUnresolvedReferences
 import cv2
-# noinspection PyUnresolvedReferences
 import numpy as np
-# noinspection PyUnresolvedReferences
 from imutils import resize
-# noinspection PyUnresolvedReferences
 from imutils.video import VideoStream
 
 print('Script Executing...')
