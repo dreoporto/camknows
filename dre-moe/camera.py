@@ -18,7 +18,6 @@ CONFIG_FILE = 'dre_moe_config.json'
 LOG_FILE = 'dre_moe.log'
 
 
-# noinspection PyBroadException
 class Camera:
 
     def __init__(self):
