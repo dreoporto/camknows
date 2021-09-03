@@ -10,12 +10,8 @@ from threading import Thread
 from time import sleep
 from typing import Any
 
-# TODO AEO remove for cv2 and numpy
-# noinspection PyUnresolvedReferences
 import cv2
-# noinspection PyUnresolvedReferences
 import numpy as np
-# noinspection PyUnresolvedReferences
 import picamera
 
 CONFIG_FILE = 'dre_moe_config.json'

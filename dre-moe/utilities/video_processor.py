@@ -3,7 +3,6 @@ import os
 import sys
 from typing import List, Tuple
 
-# noinspection PyUnresolvedReferences
 import cv2
 
 
