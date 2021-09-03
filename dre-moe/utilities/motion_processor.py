@@ -8,7 +8,7 @@ import numpy as np
 SCRIPT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 
-class Motion:
+class MotionProcessor:
 
     def __init__(self):
         self.diff_threshold = 3000000
@@ -112,7 +112,7 @@ def main() -> None:
     if images_directory == '':
         return
 
-    motion = Motion()
+    motion = MotionProcessor()
     motion.detect_motion_from_images(images_directory, extension)
 
 
