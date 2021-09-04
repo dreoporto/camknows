@@ -6,6 +6,7 @@ import time
 import traceback
 import uuid
 from fractions import Fraction
+from logging.handlers import TimedRotatingFileHandler
 from threading import Thread
 from time import sleep
 from typing import Any
@@ -16,14 +17,14 @@ import picamera
 
 CONFIG_FILE = 'dre_moe_config.json'
 LOG_FILE = 'dre_moe.log'
+LOG_FILE_SUFFIX = '%Y%m%d'
 
 
 class Camera:
 
     def __init__(self):
         self.script_directory = os.path.dirname(os.path.abspath(__file__))
-
-        logging.basicConfig(filename=os.path.join(self.script_directory, LOG_FILE), level=logging.INFO)
+        self.logger = self._setup_logger()
 
         with open(os.path.join(self.script_directory, CONFIG_FILE)) as json_file:
             self.config = json.load(json_file)
@@ -34,6 +35,20 @@ class Camera:
         self.diff_threshold: int = self.config['diff_threshold']
         self.resolution_width: int = self.config['resolution_width']
         self.resolution_height: int = self.config['resolution_height']
+
+    def _setup_logger(self) -> Any:
+        logs_directory = os.path.join(self.script_directory, "logs")
+
+        if not os.path.exists(logs_directory):
+            os.makedirs(logs_directory)
+
+        logger = logging.getLogger(__name__)
+        handler = TimedRotatingFileHandler(os.path.join(logs_directory, LOG_FILE), when="midnight", interval=1)
+        handler.suffix = LOG_FILE_SUFFIX
+        logger.setLevel(logging.INFO)
+        logger.addHandler(handler)
+
+        return logger
 
     def start_camera_loop(self) -> None:
 
@@ -227,5 +242,5 @@ class Camera:
         if level == logging.NOTSET:
             return
         formatted_message = f'{self._get_timestamp()}\t{message}'
-        logging.log(level, formatted_message)
+        self.logger.log(level, formatted_message)
         print(formatted_message)
