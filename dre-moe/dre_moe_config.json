@@ -1,6 +1,6 @@
 {
     "main_directory": "media-files",
-    "image_file_prefix": "dre-moe",
+    "image_file_prefix": "camknows",
     "logger_level": "INFO",
     "wait_time": 0,
     "do_loop": true,

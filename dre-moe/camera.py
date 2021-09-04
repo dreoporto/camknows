@@ -15,8 +15,8 @@ import cv2
 import numpy as np
 import picamera
 
-CONFIG_FILE = 'dre_moe_config.json'
-LOG_FILE = 'dre_moe.log'
+CONFIG_FILE = 'camknows_config.json'
+LOG_FILE = 'camknows.log'
 LOG_FILE_SUFFIX = '%Y%m%d'
 
 
