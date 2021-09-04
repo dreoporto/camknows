@@ -24,11 +24,12 @@ class Camera:
 
     def __init__(self):
         self.script_directory = os.path.dirname(os.path.abspath(__file__))
-        self.logger = self._setup_logger()
+        self.logger = self._setup_logger()  # setup asap to log errors asap
 
         with open(os.path.join(self.script_directory, CONFIG_FILE)) as json_file:
             self.config = json.load(json_file)
 
+        self.logger.setLevel(self.config['logger_level'])
         self.last_image_time: float
         self.last_setup_time: float = 0
         self.previous_processed_image: Any = None
@@ -45,7 +46,7 @@ class Camera:
         logger = logging.getLogger(__name__)
         handler = TimedRotatingFileHandler(os.path.join(logs_directory, LOG_FILE), when="midnight", interval=1)
         handler.suffix = LOG_FILE_SUFFIX
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.ERROR)  # default level set here; config level set later
         logger.addHandler(handler)
 
         return logger
