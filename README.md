@@ -1,3 +1,5 @@
-# Dre-Moe
+# CamKnows
 
-### Image and motion capture for the Raspberry Pi
+## Summary
+
+CamKnows is a Computer Vision motion detection application for the Raspberry Pi.

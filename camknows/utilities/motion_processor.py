@@ -8,7 +8,7 @@ import numpy as np
 SCRIPT_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 
-class Motion:
+class MotionProcessor:
 
     def __init__(self):
         self.diff_threshold = 3000000
@@ -61,7 +61,7 @@ class Motion:
                     # TODO AEO output to TAB DELIMITED log file for DIFF SCORE reference, with formatted diff_score
                     # EXAMPLE
                     # TIMESTAMP \t EVENT \t FILE \t SCORE
-                    # TIMESTAMP \t Motion Detected \t dre-moe-2021-07-19-07-11-57-c7fdda3d.jpg \t 52,807,976
+                    # TIMESTAMP \t Motion Detected \t camknows-2021-07-19-07-11-57-c7fdda3d.jpg \t 52,807,976
                     # TIMESTAMP \t ERROR DETAILS
                     output_directory = os.path.join(images_directory, 'motion_detected')
                     # print(output_directory)
@@ -112,7 +112,7 @@ def main() -> None:
     if images_directory == '':
         return
 
-    motion = Motion()
+    motion = MotionProcessor()
     motion.detect_motion_from_images(images_directory, extension)
 
 
