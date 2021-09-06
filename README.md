@@ -42,7 +42,7 @@ $ git clone https://github.com/dreoporto/camknows.git
 
 ### External Storage and File Share
 
-To ensure adequate storage of files, adding external storage to your Raspberry Pi is encouraged: https://www.raspberrypi.org/documentation/configuration/external-storage.md
+To ensure adequate storage of files, adding external storage *with automatic mounting* to your Raspberry Pi is encouraged: https://www.raspberrypi.org/documentation/computers/configuration.html#external-storage-configuration
 
 A Samba File Share makes it simple to view images that have been saved: https://magpi.raspberrypi.org/articles/samba-file-server
 
