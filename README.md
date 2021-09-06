@@ -30,7 +30,7 @@ CamKnows saves an image at a minimum of every hour by default, assuring you that
 - Raspberry Pi OS running Stretch distribution or later
 - OpenCV and required libraries installed
 
-For the above requirements, detailed install steps are available here: [How to Install OpenCV for Python on a Raspberry Pi]([https://www.pendragonai.com/how-to-install-opencv-for-python-on-a-raspberry-pi/])
+For the above requirements, detailed install steps are available here: [How to Install OpenCV for Python on a Raspberry Pi](https://www.pendragonai.com/how-to-install-opencv-for-python-on-a-raspberry-pi/)
 
 ## Installation
 
