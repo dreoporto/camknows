@@ -4,7 +4,7 @@
 
 CamKnows is a Computer Vision motion detection application for the Raspberry Pi.
 
-With the combined powers of both the Raspberry Pi and its Camera Module, CamKnows captures images when motion is detected, based on configured sensitivity.  This is accomplished by calculating the difference between two images to infer if motion has occurred.  An extensive set of configuration options allow for the customization of various settings, including motion sensitivity and time lapse image capture.
+With the combined powers of both the Raspberry Pi and its Camera Module, CamKnows captures images when motion is detected, based on configured sensitivity.  This is accomplished by calculating the difference between two consecutive images to determine if motion has occurred.  An extensive set of configuration options allow for the customization of various settings, including motion sensitivity and time lapse image capture.
 
 CamKnows is useful for monitoring activity, where customization options are critical.  This makes it a handy addition to existing systems you may already have in place.
 
@@ -20,14 +20,15 @@ CamKnows is built with Python 3 and the following libraries:
 
 The PiCamera `capture` method obtains data from the Camera Module in the form of a numpy multidimensional data array.  Various capabilities provided by the PiCamera library are leveraged to ensure efficient and effective image capture.  Resolution, rotation, and timestamp settings for PiCamera can be customized in the `camknows_config.json` file.
 
-OpenCV methods for image manipulation are used to simplify image data. The `absdiff` method calculates how much data has changed.  When this number exceeds a threshold, an image file is saved.  This threshold is customized using the `diff_threshold` setting.
+OpenCV methods for image manipulation are used to simplify image data. The `absdiff` method calculates how much data has changed.  When this number exceeds a threshold, an image file is saved.  This threshold is customized using the `diff_threshold` setting detailed below.
 
 CamKnows saves an image at a minimum of every hour by default, assuring you that the system is running properly. This setting can also be customized.
 
 ## Prerequisites
 
 - Raspberry Pi Zero, 3 or 4
-- Raspberry Pi OS running Stretch distribution or later
+- [Raspberry Pi OS](https://www.raspberrypi.org/software/) running Stretch distribution or later
+- [Camera Module](https://www.raspberrypi.org/documentation/accessories/camera.html#camera-modules)
 - OpenCV and required libraries installed
 
 For the above requirements, detailed install steps are available here: [How to Install OpenCV for Python on a Raspberry Pi](https://www.pendragonai.com/how-to-install-opencv-for-python-on-a-raspberry-pi/)
@@ -67,7 +68,7 @@ With CamKnows configured and working as desired, a crontab entry will ensure tha
 * * * * * flock -n /tmp/camknows-lock python3 /mnt/usbdisk1/camknows/camknows/camknows.py > /mnt/usbdisk1/myjob.log 2>&1
 ```
 
-For dedicated Raspberry Pi setups running only the essentials (i.e., RPi OS Lite), a crontab entry with a set priority can be useful:
+For dedicated Raspberry Pi setups running only the essentials (i.e., [RPi OS Lite](https://www.raspberrypi.org/software/operating-systems/)), a crontab entry with a set priority can be useful:
 
 ```
 * * * * * flock -n /tmp/camknows-lock nice -n -10 python3 /mnt/usbdisk1/camknows/camknows/camknows.py > /mnt/usbdisk1/myjob.log 2>&1
@@ -97,6 +98,10 @@ This is set to `3600` seconds, or 1 hour, by default.  With this setting, a new 
 ### Image Resolution: `resolution_width`, `resolution_height`
 
 Sets the resolution of captured/processed and saved images, which is set to a default of `1024` by `768`.  Setting this too high will impact application performance, including capture speed.
+
+## Output - Motion Capture Images
+
+For more efficient file organization and management, images are saved to a series of subdirectories, based on the file date.  Example: `camknows/media-files/2021/09/04/camknows-2021-09-04-09-41-13-535487-4.156.094.jpg`
 
 ## Acknowledgements
 
