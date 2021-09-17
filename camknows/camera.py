@@ -18,6 +18,7 @@ import picamera
 CONFIG_FILE = 'camknows_config.json'
 LOG_FILE = 'camknows.log'
 LOG_FILE_SUFFIX = '%Y%m%d'
+REPEAT_ERROR_LIMIT = 3
 
 
 class Camera:
@@ -36,6 +37,7 @@ class Camera:
         self.diff_threshold: int = self.config['diff_threshold']
         self.resolution_width: int = self.config['resolution_width']
         self.resolution_height: int = self.config['resolution_height']
+        self.error_count = 0
 
     def _setup_logger(self) -> Any:
         logs_directory = os.path.join(self.script_directory, "logs")
@@ -63,6 +65,9 @@ class Camera:
 
                     if not do_loop:
                         break
+                    if self.error_count >= REPEAT_ERROR_LIMIT:
+                        self._log("Error limit exceeded; Exiting program", logging.ERROR)
+                        break
             except Exception:
                 self._log(traceback.format_exc(), logging.ERROR)
             finally:
@@ -74,8 +79,12 @@ class Camera:
         try:
             self._setup_camera(camera)
             self._capture_image_with_motion_detection(camera)
+
+            # successful run: reset error counter
+            self.error_count = 0
         except Exception:
             self._log(traceback.format_exc(), logging.ERROR)
+            self.error_count += 1
 
         wait_time = self.config['wait_time']
         self._log(f'sleeping for {wait_time} seconds')
