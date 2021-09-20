@@ -18,7 +18,7 @@ import picamera
 CONFIG_FILE = 'camknows_config.json'
 LOG_FILE = 'camknows.log'
 LOG_FILE_SUFFIX = '%Y%m%d'
-REPEAT_ERROR_LIMIT = 3
+REPEAT_ERROR_LIMIT = 5
 
 
 class Camera:
@@ -37,7 +37,7 @@ class Camera:
         self.diff_threshold: int = self.config['diff_threshold']
         self.resolution_width: int = self.config['resolution_width']
         self.resolution_height: int = self.config['resolution_height']
-        self.error_count = 0
+        self.error_count: int = 0
 
     def _setup_logger(self) -> Any:
         logs_directory = os.path.join(self.script_directory, "logs")
@@ -66,7 +66,8 @@ class Camera:
                     if not do_loop:
                         break
                     if self.error_count >= REPEAT_ERROR_LIMIT:
-                        self._log("Error limit exceeded; Exiting program", logging.ERROR)
+                        self._log(f"EXITING PROGRAM due to {REPEAT_ERROR_LIMIT} consecutive errors",
+                                  logging.ERROR)
                         break
             except Exception:
                 self._log(traceback.format_exc(), logging.ERROR)
