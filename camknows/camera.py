@@ -152,9 +152,18 @@ class Camera:
         # capturing this now: we want exact times for file and image timestamps
         timestamp_filename = datetime.datetime.now().strftime(self.config['timestamp_filename_format'])
 
-        image_array = np.empty((self.resolution_height * self.resolution_width * 3,), dtype=np.uint8)
+        # unencoded formats must account for resolution rounding
+        horizontal_multiple = 32
+        vertical_multiple = 16
+        array_width = (self.resolution_width + horizontal_multiple - 1) // horizontal_multiple * horizontal_multiple
+        array_height = (self.resolution_height + vertical_multiple - 1) // vertical_multiple * vertical_multiple
+
+        image_array = np.empty((array_height * array_width * 3,), dtype=np.uint8)
         camera.capture(image_array, 'bgr', use_video_port=self.config['use_video_port'])
-        image_array = image_array.reshape((self.resolution_height, self.resolution_width, 3))
+        image_array = image_array.reshape((array_height, array_width, 3))
+
+        # remove blank pixel data from rounding
+        image_array = image_array[:self.resolution_height, :self.resolution_width]
 
         self._log(f'Image Capture Complete')
         self._log(f'Elapsed Seconds: {time.perf_counter() - perf_start_time:0.4f}')
