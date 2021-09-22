@@ -158,10 +158,8 @@ class Camera:
         array_width = (self.resolution_width + horizontal_multiple - 1) // horizontal_multiple * horizontal_multiple
         array_height = (self.resolution_height + vertical_multiple - 1) // vertical_multiple * vertical_multiple
 
-        image_array = np.empty((array_height * array_width * 3,), dtype=np.uint8)
+        image_array = np.empty((array_height, array_width, 3), dtype=np.uint8)
         camera.capture(image_array, 'bgr', use_video_port=self.config['use_video_port'])
-        image_array = image_array.reshape((array_height, array_width, 3))
-
         # remove blank pixel data from rounding
         image_array = image_array[:self.resolution_height, :self.resolution_width]
 
