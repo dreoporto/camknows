@@ -153,7 +153,7 @@ class Camera:
         timestamp_filename = datetime.datetime.now().strftime(self.config['timestamp_filename_format'])
 
         # unencoded formats must account for resolution rounding
-        horizontal_multiple = 32
+        horizontal_multiple = 16 if self.config['use_video_port'] else 32
         vertical_multiple = 16
         array_width = (self.resolution_width + horizontal_multiple - 1) // horizontal_multiple * horizontal_multiple
         array_height = (self.resolution_height + vertical_multiple - 1) // vertical_multiple * vertical_multiple
