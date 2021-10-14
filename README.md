@@ -1,8 +1,8 @@
-# CamKnows
+# CamKnows™
 
 ## Summary
 
-CamKnows is a Computer Vision motion detection application for the Raspberry Pi.
+CamKnows™ is a Computer Vision motion detection application for the Raspberry Pi.
 
 With the combined powers of both the Raspberry Pi and its Camera Module, CamKnows captures images when motion is detected, based on configured sensitivity.  This is accomplished by calculating the difference between two consecutive images to determine if motion has occurred.  An extensive set of configuration options allow for the customization of various settings, including motion sensitivity and time lapse image capture.
 
@@ -99,6 +99,10 @@ This is set to `3600` seconds, or 1 hour, by default.  With this setting, a new 
 
 Sets the resolution of captured/processed and saved images, which is set to a default of `1024` by `768`.  Setting this too high will impact application performance, including capture speed.
 
+### Rotate Image: `rotation`
+
+Sets the rotation for images; useful for adjustments based on your camera's position. Example: for a camera that is hanging upside-down, set this value to `180`.
+
 ## Output - Motion Capture Images
 
 For more efficient file organization and management, images are saved to a series of subdirectories, based on the file date.  Example: `camknows/media-files/2021/09/04/camknows-2021-09-04-09-41-13-535487-4.156.094.jpg`
@@ -106,3 +110,5 @@ For more efficient file organization and management, images are saved to a serie
 ## Acknowledgements
 
 In addition to PiCamera and OpenCV, I have found Simon Monk’s [Raspberry Pi Cookbook](https://www.oreilly.com/library/view/raspberry-pi-cookbook/9781492043218/), now in its 3rd Edition, to be an invaluable resource for leveraging the capabilities of these diminutive but powerful devices to solve real problems. I cannot recommend it enough.
+
+*Copyright (c) 2021 Andre Oporto*

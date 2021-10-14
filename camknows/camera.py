@@ -101,6 +101,7 @@ class Camera:
         self._log('Setup PiCamera', logging.INFO)
         camera.rotation = self.config['rotation']
         camera.resolution = (self.resolution_width, self.resolution_height)
+        camera.zoom = self.config['zoom']
         camera.led = self.config['enable_led']
 
         if self.config['enable_manual_mode']:
