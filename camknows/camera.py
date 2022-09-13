@@ -19,6 +19,7 @@ CONFIG_FILE = 'camknows_config.json'
 LOG_FILE = 'camknows.log'
 LOG_FILE_SUFFIX = '%Y%m%d'
 REPEAT_ERROR_LIMIT = 5
+VIDEO_SPLITTER_PORT = 2
 
 
 class Camera:
@@ -38,6 +39,12 @@ class Camera:
         self.resolution_width: int = self.config['resolution_width']
         self.resolution_height: int = self.config['resolution_height']
         self.error_count: int = 0
+
+        # TODO AEO create video class
+        self.video_save_enabled: bool = self.config['video_save_enabled']
+        self.video_format: str = self.config['video_format']
+        self.video_duration_seconds: int = self.config['video_duration_seconds']
+        self.video_start_time: float = -1
 
     def _setup_logger(self) -> Any:
         logs_directory = os.path.join(self.script_directory, "logs")
@@ -72,6 +79,8 @@ class Camera:
             except Exception:
                 self._log(traceback.format_exc(), logging.ERROR)
             finally:
+                if self.video_save_enabled:
+                    camera.stop_recording(splitter_port=VIDEO_SPLITTER_PORT)
                 camera.close()
                 self._log('Camera Closed')
 
@@ -80,6 +89,7 @@ class Camera:
         try:
             self._setup_camera(camera)
             self._capture_image_with_motion_detection(camera)
+            self._save_video(camera)
 
             # successful run: reset error counter
             self.error_count = 0
@@ -111,7 +121,8 @@ class Camera:
             camera.iso = self.config['manual_iso']
             framerate_range_from = Fraction(self.config['manual_framerate_range_from'])
             framerate_range_to = Fraction(self.config['manual_framerate_range_to'])
-            camera.framerate_range = (framerate_range_from, framerate_range_to)
+            # camera.framerate_range = (framerate_range_from, framerate_range_to)
+            camera.framerate = Fraction(30, 1)  # TODO AEO framerate_range NOT SUPPORTED
             camera.awb_mode = self.config['manual_awb_mode']
             camera.awb_gains = (self.config['manual_awb_gains_red'], self.config['manual_awb_gains_blue'])
 
@@ -169,6 +180,37 @@ class Camera:
 
         self._check_for_motion(image_array, timestamp_filename)
 
+    def _save_video(self, camera: Any):
+
+        # exit asap if no work to be done
+        if not self.video_save_enabled:
+            return
+
+        # avoid all processing if no work to be done
+        if self.video_start_time < 0:
+            video_full_path = self._get_video_full_path()
+            self._log(f'recording: {video_full_path}')
+            self.video_start_time = time.perf_counter()
+            camera.start_recording(video_full_path, splitter_port=VIDEO_SPLITTER_PORT)
+        elif (time.perf_counter() - self.video_start_time) > self.video_duration_seconds:
+            video_full_path = self._get_video_full_path()
+            self.video_start_time = time.perf_counter()
+            camera.split_recording(video_full_path, splitter_port=VIDEO_SPLITTER_PORT)
+
+        camera.wait_recording(0, splitter_port=VIDEO_SPLITTER_PORT)
+
+    def _get_video_full_path(self):
+        timestamp_filename = datetime.datetime.now().strftime(self.config['timestamp_filename_format'])
+        timestamp_filename = f'{timestamp_filename}.{self.video_format}'
+        directory_path = os.path.join(self._get_directory_path(), "video")
+        video_full_path = os.path.join(directory_path, timestamp_filename)
+
+        # TODO AEO redundant code in _get_directory_path
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)
+
+        return video_full_path
+
     def _check_for_motion(self, image_array: Any, timestamp_filename: str) -> None:
 
         perf_start_time = time.perf_counter()
@@ -205,7 +247,21 @@ class Camera:
     def _save_image_from_motion(self, image_array: Any, timestamp_filename: str, processed_image_array: Any = None,
                                 diff_score: Any = None):
 
-        # setup directory and output format
+        image_file_prefix = self.config['image_file_prefix']
+        diff_score_in_filename = self.config['diff_score_in_filename']
+        image_file_suffix: str = (str(uuid.uuid4())[:8] if (diff_score is None or not diff_score_in_filename)
+                                  else '{0:,d}'.format(diff_score).replace(',', '.'))
+        filename = f'{image_file_prefix}-{timestamp_filename}-{image_file_suffix}.jpg'
+        directory_path = self._get_directory_path()
+        image_full_path = os.path.join(directory_path, filename)
+
+        self._write_image_file_async(image_full_path, image_array)
+        self.last_image_time = time.time()
+
+        self._save_processed_images(directory_path, filename, processed_image_array)
+
+    def _get_directory_path(self) -> str:
+
         main_directory = self.config['main_directory']
         subdirectory = datetime.datetime.now().strftime('%Y/%m/%d')
         directory_path = os.path.join(self.script_directory, main_directory, subdirectory)
@@ -213,17 +269,7 @@ class Camera:
         if not os.path.exists(directory_path):
             os.makedirs(directory_path)
 
-        image_file_prefix = self.config['image_file_prefix']
-        diff_score_in_filename = self.config['diff_score_in_filename']
-        image_file_suffix: str = (str(uuid.uuid4())[:8] if (diff_score is None or not diff_score_in_filename)
-                                  else '{0:,d}'.format(diff_score).replace(',', '.'))
-        filename = f'{image_file_prefix}-{timestamp_filename}-{image_file_suffix}.jpg'
-        image_full_path = os.path.join(directory_path, filename)
-
-        self._write_image_file_async(image_full_path, image_array)
-        self.last_image_time = time.time()
-
-        self._save_processed_images(directory_path, filename, processed_image_array)
+        return directory_path
 
     def _save_processed_images(self, directory_path: str, filename: str, processed_image_array: Any) -> None:
         """
