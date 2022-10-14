@@ -38,6 +38,8 @@ class Camera:
         self.resolution_width: int = self.config['resolution_width']
         self.resolution_height: int = self.config['resolution_height']
         self.error_count: int = 0
+        self.motion_frame_count: int = 0
+        self.motion_frames_threshold: int = self.config['motion_frames_threshold']
 
     def _setup_logger(self) -> Any:
         logs_directory = os.path.join(self.script_directory, "logs")
@@ -190,10 +192,13 @@ class Camera:
 
         if diff_score > self.diff_threshold:
             self._log(f'motion detected; diff score:{diff_score:,d}', logging.INFO)
-            self._save_image_from_motion(image_array, timestamp_filename, processed_image, diff_score)
+            self.motion_frame_count += 1
+            if self.motion_frame_count >= self.motion_frames_threshold:
+                self._save_image_from_motion(image_array, timestamp_filename, processed_image, diff_score)
+                self.motion_frame_count = 0
         elif (self.config['time_lapse_seconds'] != 0
               and time.time() - self.last_image_time > self.config['time_lapse_seconds']):
-            # we will also save the image if the time lapse is set and expired
+            # we will also save the image if the time-lapse is set and expired
             self._log(f'time elapsed; saving image', logging.INFO)
             self._save_image_from_motion(image_array, timestamp_filename)
 
@@ -246,13 +251,11 @@ class Camera:
         """
         use threading to write image file and avoid disk io delay
         """
-        self._log(f'Writing file:{image_full_path}')
+        self._log(f'Writing file: {image_full_path.split("/")[-1]}', logging.INFO)
 
         image_data = image_array.copy()
         thread = Thread(target=cv2.imwrite, args=(image_full_path, image_data))
         thread.start()
-
-        self._log(f'File created:{image_full_path.split("/")[-1]}')
 
     def _get_timestamp(self) -> str:
         return datetime.datetime.now().strftime(self.config['timestamp_format'])
