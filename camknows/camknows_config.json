@@ -24,7 +24,7 @@
     "timestamp_format": "%Y-%m-%d %H:%M:%S",
     "timestamp_filename_format": "%Y-%m-%d-%H-%M-%S-%f",
     "diff_score_in_filename": true,
-    "diff_threshold": 2000000,
+    "diff_threshold": 1000000,
     "enable_led": false,
     "time_lapse_seconds": 3600,
     "setup_timeout_seconds": 1290,

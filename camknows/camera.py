@@ -12,6 +12,7 @@ from time import sleep
 from typing import Any
 
 import cv2
+import imutils
 import numpy as np
 import picamera
 
@@ -177,8 +178,9 @@ class Camera:
 
         self._log('Check for motion...')
 
-        processed_image = cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY)
-        processed_image = cv2.blur(processed_image, (20, 20))
+        processed_image = imutils.resize(image_array, width=int(self.resolution_width * 0.5))
+        processed_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
+        processed_image = cv2.blur(processed_image, (21, 21))
 
         if self.previous_processed_image is None:
             # save and set first image!
