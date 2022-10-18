@@ -201,8 +201,12 @@ class Camera:
         elif (self.config['time_lapse_seconds'] != 0
               and time.time() - self.last_image_time > self.config['time_lapse_seconds']):
             # we will also save the image if the time-lapse is set and expired
+            self.motion_frame_count = 0  # reset here since time elapsed
             self._log(f'time elapsed; saving image', logging.INFO)
             self._save_image_from_motion(image_array, timestamp_filename)
+        else:
+            # no consecutive frame motion, reset motion_frame_count
+            self.motion_frame_count = 0
 
         self.previous_processed_image = processed_image
 
