@@ -29,5 +29,6 @@
     "time_lapse_seconds": 3600,
     "setup_timeout_seconds": 1290,
     "enable_image_debugging": false,
-    "motion_frames_threshold": 2
+    "motion_frames_threshold": 2,
+    "motion_image_percent": 80
 }

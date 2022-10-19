@@ -41,6 +41,7 @@ class Camera:
         self.error_count: int = 0
         self.motion_frame_count: int = 0
         self.motion_frames_threshold: int = self.config['motion_frames_threshold']
+        self.motion_image_percent: float = self.config['motion_image_percent']
 
     def _setup_logger(self) -> Any:
         logs_directory = os.path.join(self.script_directory, "logs")
@@ -178,7 +179,8 @@ class Camera:
 
         self._log('Check for motion...')
 
-        processed_image = imutils.resize(image_array, width=int(self.resolution_width * 0.5))
+        motion_image_width = int(self.resolution_width * (self.motion_image_percent / 100.0))
+        processed_image = imutils.resize(image_array, width=motion_image_width)
         processed_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
         processed_image = cv2.blur(processed_image, (21, 21))
 
