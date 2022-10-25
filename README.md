@@ -91,6 +91,10 @@ In the above example, the `diff_score` between current and prior image in the vi
 
 Environmental conditions such as direct sunlight can affect sensitivity.
 
+### Motion Frames Threshold: `motion_frames_threshold`
+
+Set the number of consecutive motion detection image frames for an image to be saved.
+
 ### Elapsed Time: `time_lapse_seconds`
 
 This is set to `3600` seconds, or 1 hour, by default.  With this setting, a new image will be saved one hour from the time the last image was saved.  This feature assures you that the system is up and running in the event there is no movement. A `diff_score` is not included in the file name in these instances.  Example: `camknows-2021-09-04-09-41-06-577426-af3b73de.jpg`
@@ -103,6 +107,10 @@ Sets the resolution of captured/processed and saved images, which is set to a de
 
 Sets the rotation for images; useful for adjustments based on your camera's position. Example: for a camera that is hanging upside-down, set this value to `180`.
 
+### Reduce Motion Data: `motion_image_percent`
+
+Reduce the amount of data used for motion detection by resizing the image data to this percent.  Default is `100` for no reduction.  This **does not** affect the images that are saved.  This can help reduce false positives by removing excess image detail/noise.  It can also be used to improve processing performance, especially in slower devices such as a Raspberry Pi Zero.
+
 ## Output - Motion Capture Images
 
 For more efficient file organization and management, images are saved to a series of subdirectories, based on the file date.  Example: `camknows/media-files/2021/09/04/camknows-2021-09-04-09-41-13-535487-4.156.094.jpg`
@@ -111,4 +119,4 @@ For more efficient file organization and management, images are saved to a serie
 
 In addition to PiCamera and OpenCV, I have found Simon Monk’s [Raspberry Pi Cookbook](https://www.oreilly.com/library/view/raspberry-pi-cookbook/9781492043218/), now in its 3rd Edition, to be an invaluable resource for leveraging the capabilities of these diminutive but powerful devices to solve real problems. I cannot recommend it enough.
 
-*Copyright (c) 2021 Andre Oporto*
+*Copyright (c) 2021-2022 Andre Oporto*
