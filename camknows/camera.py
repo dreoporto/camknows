@@ -9,7 +9,7 @@ from fractions import Fraction
 from logging.handlers import TimedRotatingFileHandler
 from threading import Thread
 from time import sleep
-from typing import Any
+from typing import Any, List
 
 import cv2
 import imutils
@@ -42,6 +42,7 @@ class Camera:
         self.motion_frame_count: int = 0
         self.motion_frames_threshold: int = self.config['motion_frames_threshold']
         self.motion_image_percent: float = self.config['motion_image_percent']
+        self.crop_dimensions: List[int] = self.config['crop_dimensions']
 
     def _setup_logger(self) -> Any:
         logs_directory = os.path.join(self.script_directory, "logs")
@@ -165,13 +166,29 @@ class Camera:
 
         image_array = np.empty((array_height, array_width, 3), dtype=np.uint8)
         camera.capture(image_array, 'bgr', use_video_port=self.config['use_video_port'])
-        # remove blank pixel data from rounding
-        image_array = image_array[:self.resolution_height, :self.resolution_width]
+        image_array = self._crop_image(image_array)
 
         self._log(f'Image Capture Complete')
         self._log(f'Elapsed Seconds: {time.perf_counter() - perf_start_time:0.4f}')
 
         self._check_for_motion(image_array, timestamp_filename)
+
+    def _crop_image(self, image_array: Any) -> Any:
+
+        # crop image data to remove blank pixel data from rounding
+        image_array = image_array[:self.resolution_height, :self.resolution_width]
+
+        # crop image further if crop_dimensions is configured appropriately
+
+        crop_x1 = self.crop_dimensions[0] - 1
+        crop_x2 = self.crop_dimensions[1]
+        crop_y1 = self.crop_dimensions[2] - 1
+        crop_y2 = self.crop_dimensions[3]
+
+        if crop_x2 != 0 and crop_y2 != 0:
+            image_array = image_array[crop_y1:crop_y2, crop_x1:crop_x2]
+
+        return image_array
 
     def _check_for_motion(self, image_array: Any, timestamp_filename: str) -> None:
 
