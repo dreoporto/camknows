@@ -78,7 +78,7 @@ The `nice` option above can only be included with a root user crontab entry, by 
 
 ## Important Configuration Settings
 
-CamKnows functionality can be customized by modifying the default settings stored in the `camknows_config.json` file.  
+CamKnows functionality can be customized by modifying the default settings stored in the `camknows_config.json` file.
 
 ### Sensitivity: `diff_threshold`
 
@@ -110,6 +110,8 @@ Sets the rotation for images; useful for adjustments based on your camera's posi
 ### Reduce Motion Data: `motion_image_percent`
 
 Reduce the amount of data used for motion detection by resizing the image data to this percent.  Default is `100` for no reduction.  This **does not** affect the images that are saved.  This can help reduce false positives by removing excess image detail/noise.  It can also be used to improve processing performance, especially in slower devices such as a Raspberry Pi Zero.
+
+### *See the [Configuration Reference](config_reference.md) for details on all configuration options.*
 
 ## Output - Motion Capture Images
 
