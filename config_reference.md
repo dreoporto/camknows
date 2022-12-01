@@ -36,7 +36,7 @@ Prefix text added to all image file names
 
 ### `logger_level`
 
-Sets the logging level for log fies stored under `camknows/camknows/logs`. 
+Sets the logging level for log files stored under `camknows/camknows/logs`. 
 Useful for troubleshooting and config customization. 
 
 - Options: `INFO`, `DEBUG`, `NOTSET`
@@ -178,3 +178,14 @@ Set the number of consecutive motion detection image frames for an image to be s
 ### `motion_image_percent`
 
 **Reduce Motion Data** - Reduce the amount of data used for motion detection by resizing the image data to this percent.  Default is `100` for no reduction.  This **does not** affect the images that are saved.  This can help reduce false positives by removing excess image detail/noise.  It can also be used to improve processing performance, especially in slower devices such as a Raspberry Pi Zero.
+
+### `crop_dimensions`
+
+Crop the image data, by setting the x1, x2, y1, y2 values. 
+If x2 or y2 are set to 0 this setting is ignored.
+This is useful for excluding unwanted data from motion detection and saved files,
+without distorting the saved image.
+Since the timestamp is set using camera firmware, this setting may exclude the image timestamp depending on configuration.
+
+Example: A setting of [1, 1024, 1, 568] will crop a 1024x768 image by removing the 
+bottom of the image data.
