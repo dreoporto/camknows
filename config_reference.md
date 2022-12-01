@@ -111,9 +111,30 @@ Set to `off` to disable Auto White Balance mode.
 
 Manual settings for White Balance (TODO AEO link to reference).
 
+### `print_camera_settings` (expert)
 
----
+Output camera settings to the command line. Useful when experimenting with settings and code.
 
+### `timestamp_format`
+
+Format for image timestamps, which are placed at the top-center of captured images using the camera firmware.
+
+### `timestamp_filename_format`
+
+Format for file timestamps, which are included in saved image file names. 
+
+- Setting: `%Y-%m-%d-%H-%M-%S-%f` *(year, month, date, hour, minute, second, millisecond)*
+- Output: camknows-**2022-10-01-09-04-35-661034**-7a9f5e3d.jpg
+
+### `diff_score_in_filename`
+
+Include the diff score in the saved image file name. 
+Useful for fine-tuning the `diff_threshold` setting.
+On startup and time-lapse expiration, a random string will be used instead of a diff score.
+
+Examples:
+- camknows-2022-10-12-07-28-49-106391-**4.277.890**.jpg
+- camknows-2022-10-12-07-28-45-199350-**bae9920f**.jpg
 
 ### `diff_threshold`
 
@@ -126,13 +147,33 @@ In the above example, the `diff_score` between current and prior image in the vi
 
 Environmental conditions such as direct sunlight can affect sensitivity.
 
-### `motion_frames_threshold`
+### `enable_led` (expert)
 
-Set the number of consecutive motion detection image frames for an image to be saved.
+Enable/disable the camera device led, which is lit when the camera is running. 
+Certain Raspberry Pi models such as the Zero and 3B+ do not support this setting, so the led will always illuminate if the camera is running.
 
 ### `time_lapse_seconds`
 
 **Elapsed Time** to capture images, regardless of motion detection. This is set to `3600` seconds, or 1 hour, by default.  With this setting, a new image will be saved one hour from the time the last image was saved.  This feature assures you that the system is up and running in the event there is no movement. A `diff_score` is not included in the file name in these instances.  Example: `camknows-2021-09-04-09-41-06-577426-af3b73de.jpg`
+
+### `setup_timeout_seconds` (expert)
+
+(TODO AEO)
+
+### `enable_image_debugging` (expert)
+
+For faster processing with CamKnows, motion detection data is always converted to grayscale and blurred.
+It is also resized depending on the `motion_image_percent` setting. 
+This does not impact motion capture images, but sometimes you may want to see what these conversions 
+are producing to troubleshoot motion detection.
+
+If `enable_image_debugging` is enabled, this converted motion detection data will be saved as  
+additional **_p0.jpg* (previous) and **_p1.jpg* (current) images to a *processed* subdirectory.
+This is helpful when troubleshooting motion detection.
+
+### `motion_frames_threshold`
+
+Set the number of consecutive motion detection image frames for an image to be saved.
 
 ### `motion_image_percent`
 
