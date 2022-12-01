@@ -181,11 +181,10 @@ Set the number of consecutive motion detection image frames for an image to be s
 
 ### `crop_dimensions`
 
-Crop the image data, by setting the x1, x2, y1, y2 values. 
-If x2 or y2 are set to 0 this setting is ignored.
-This is useful for excluding unwanted data from motion detection and saved files,
-without distorting the saved image.
-Since the timestamp is set using camera firmware, this setting may exclude the image timestamp depending on configuration.
+Crop the image data, by setting the `x1, x2, y1, y2` values. 
+**This setting is ignored if *any* of these values is set to `0`.**
+This is useful for excluding unwanted data from motion detection and saved files, without distorting the image.
+Timestamps may be removed depending on this configuration, since they are embedded in images using the camera firmware 
+(for example, if the top half of the image is cropped).
 
-Example: A setting of [1, 1024, 1, 568] will crop a 1024x768 image by removing the 
-bottom of the image data.
+Example: A setting of `[1, 800, 1, 400]` will crop an 800x600 image by removing the bottom third of the image.

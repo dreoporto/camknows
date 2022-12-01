@@ -185,7 +185,7 @@ class Camera:
         crop_y1 = self.crop_dimensions[2] - 1
         crop_y2 = self.crop_dimensions[3]
 
-        if crop_x2 != 0 and crop_y2 != 0:
+        if crop_x1 != -1 and crop_y1 != -1 and crop_x2 != 0 and crop_y2 != 0:
             image_array = image_array[crop_y1:crop_y2, crop_x1:crop_x2]
 
         return image_array
