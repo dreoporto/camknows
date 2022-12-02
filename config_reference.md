@@ -52,7 +52,7 @@ By setting to `false`, only the startup image will be captured; then the program
 
 ### `awb_delay` (expert)
 
-Delay time in seconds to allow Auto White Balance to be set. Should be set to `3`
+Delay time in seconds for Auto White Balance to be set. Should be set to `3`
 
 ### `resolution_width`, `resolution_height`
 
@@ -88,7 +88,7 @@ Enables other manual settings (those that start with `manual_`) to be configured
 
 ### `manual_iso` 
 
-ISO setting for camera hardware.  Set to `0` to allow automatic configuration.
+ISO setting for camera hardware.  Set to `0` for automatic configuration.
 
 ### `manual_framerate_range_from`
 
@@ -100,7 +100,7 @@ Highest setting for framerate range.  Default is 30 fps.
 
 ### `manual_shutter_speed` 
 
-Shutter speed setting for camera hardware.  Set to `0` to allow automatic configuration.
+Shutter speed setting for camera hardware.  Set to `0` for automatic configuration.
 
 ### `manual_awb_mode`
 
@@ -149,7 +149,8 @@ Environmental conditions such as direct sunlight can affect sensitivity.
 ### `enable_led` (expert)
 
 Enable/disable the camera device led, which is lit when the camera is running. 
-Certain Raspberry Pi models such as the Zero and 3B+ do not support this setting, so the led will always illuminate if the camera is running.
+
+Certain Raspberry Pi models (such as the Zero and 3B+) and camera hardware do not support this setting, so the led will always illuminate when the camera is capturing image data.
 
 ### `time_lapse_seconds`
 
@@ -161,10 +162,9 @@ Sets the timeout for camera settings to be reset (ex: auto-white-balance, ISO). 
 
 ### `enable_image_debugging` (expert)
 
-For faster processing with CamKnows, motion detection data is always converted to grayscale and blurred.
-It is also resized depending on the `motion_image_percent` setting. These conversions are not applied to the standard saved image files, but sometimes you may want to see what these conversions are producing to troubleshoot motion detection.
+For faster processing, motion detection data is always converted to grayscale and blurred to eliminate unnecessary data. It is also resized depending on the `motion_image_percent` setting. These conversions **are not** applied to the standard saved image files. 
 
-If `enable_image_debugging` is set to `true`, this converted motion detection data will be saved as  
+Sometimes you may want to see what these conversions are producing to troubleshoot motion detection. If `enable_image_debugging` is set to `true`, this converted motion detection data will be saved as  
 additional **_p0.jpg* (previous) and **_p1.jpg* (current) image files under a *processed* subdirectory.
 
 ### `motion_frames_threshold`
