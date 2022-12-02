@@ -36,8 +36,7 @@ Prefix text added to all image file names
 
 ### `logger_level`
 
-Sets the logging level for log files stored under `camknows/camknows/logs`. 
-Useful for troubleshooting and config customization. 
+Sets the logging level for log files stored under `camknows/camknows/logs`.
 
 - Options: `INFO`, `DEBUG`, `NOTSET`
 
@@ -81,7 +80,7 @@ Set the image timestamp text size.
 
 ### `use_video_port` (expert)
 
-Accelerates image capture by using the video stream.
+Accelerates image capture by using the camera's video port.
 
 ### `enable_manual_mode` (expert)
 
@@ -105,25 +104,25 @@ Shutter speed setting for camera hardware.  Set to `0` to allow automatic config
 
 ### `manual_awb_mode`
 
-Set to `off` to disable Auto White Balance mode.
+Set to `off` to disable auto-white-balance mode. By disabling this property, `awb_gains` values can be set (see below).
 
 ### `manual_awb_gains_red`, `manual_awb_gains_blue`
 
-Manual settings for White Balance (TODO AEO link to reference).
+Manual settings for the camera's auto-white-balance gains.
 
 ### `print_camera_settings` (expert)
 
-Output camera settings to the command line. Useful when experimenting with settings and code.
+Output camera settings to the command line. Useful when experimenting with configuration settings and debugging code.
 
 ### `timestamp_format`
 
-Format for image timestamps, which are placed at the top-center of captured images using the camera firmware.
+Format for image timestamps, which are placed near the top-center of captured images using the camera firmware.
 
 ### `timestamp_filename_format`
 
 Format for file timestamps, which are included in saved image file names. 
 
-- Setting: `%Y-%m-%d-%H-%M-%S-%f` *(year, month, date, hour, minute, second, millisecond)*
+- Setting: `%Y-%m-%d-%H-%M-%S-%f` *(year, month, date, hours, minutes, seconds, milliseconds)*
 - Output: camknows-**2022-10-01-09-04-35-661034**-7a9f5e3d.jpg
 
 ### `diff_score_in_filename`
@@ -158,22 +157,19 @@ Certain Raspberry Pi models such as the Zero and 3B+ do not support this setting
 
 ### `setup_timeout_seconds` (expert)
 
-(TODO AEO)
+Sets the timeout for camera settings to be reset (ex: auto-white-balance, ISO).  The default setting of `1290` means that the camera settings will be reset approximately every 21 minutes.
 
 ### `enable_image_debugging` (expert)
 
 For faster processing with CamKnows, motion detection data is always converted to grayscale and blurred.
-It is also resized depending on the `motion_image_percent` setting. 
-This does not impact motion capture images, but sometimes you may want to see what these conversions 
-are producing to troubleshoot motion detection.
+It is also resized depending on the `motion_image_percent` setting. These conversions are not applied to the standard saved image files, but sometimes you may want to see what these conversions are producing to troubleshoot motion detection.
 
-If `enable_image_debugging` is enabled, this converted motion detection data will be saved as  
-additional **_p0.jpg* (previous) and **_p1.jpg* (current) images to a *processed* subdirectory.
-This is helpful when troubleshooting motion detection.
+If `enable_image_debugging` is set to `true`, this converted motion detection data will be saved as  
+additional **_p0.jpg* (previous) and **_p1.jpg* (current) image files under a *processed* subdirectory.
 
 ### `motion_frames_threshold`
 
-Set the number of consecutive motion detection image frames for an image to be saved.
+Sets the required number of consecutive image frames where motion is detected before an image will be saved. Along with the `diff_threshold` setting, this helps reduce excessive image captures.
 
 ### `motion_image_percent`
 
@@ -181,10 +177,10 @@ Set the number of consecutive motion detection image frames for an image to be s
 
 ### `crop_dimensions`
 
-Crop the image data, by setting the `x1, x2, y1, y2` values. 
-**This setting is ignored if *any* of these values is set to `0`.**
-This is useful for excluding unwanted data from motion detection and saved files, without distorting the image.
-Timestamps may be removed depending on this configuration, since they are embedded in images using the camera firmware 
-(for example, if the top half of the image is cropped).
+Crops the image data. Format is `[x1, x2, y1, y2]` with a default of `[0, 0, 0, 0]`. 
 
 Example: A setting of `[1, 800, 1, 400]` will crop an 800x600 image by removing the bottom third of the image.
+
+This setting is **ignored** if **any** of these values is set to `0`.
+
+This is useful for excluding unwanted data from motion detection and saved files, without distorting the image. Timestamps may be removed depending on this configuration, since they are embedded in images using the camera firmware (for example, if the top half of the image is cropped).
