@@ -138,7 +138,6 @@ class Camera:
         self._log(f'exposure speed\t\t\t{camera.exposure_speed}')
         self._log(f'brightness\t\t\t{camera.brightness}')
         self._log(f'exposure_compensation\t\t{camera.exposure_compensation}')
-        self._log(f'awb_mode\t\t\t{camera.awb_mode}')
         self._log(f'exposure_mode\t\t\t{camera.exposure_mode}')
         self._log(f'framerate\t\t\t{camera.framerate}')
         self._log(f'framerate_range\t\t\t{camera.framerate_range}')
@@ -196,7 +195,8 @@ class Camera:
 
         self._log('Check for motion...')
 
-        motion_image_width = int(self.resolution_width * (self.motion_image_percent / 100.0))
+        image_width = image_array.shape[1]
+        motion_image_width = int(image_width * (self.motion_image_percent / 100.0))
         processed_image = imutils.resize(image_array, width=motion_image_width)
         processed_image = cv2.cvtColor(processed_image, cv2.COLOR_BGR2GRAY)
         processed_image = cv2.blur(processed_image, (21, 21))
