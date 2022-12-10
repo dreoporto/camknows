@@ -40,9 +40,9 @@ class Camera:
         self.resolution_height: int = self.config['resolution_height']
         self.error_count: int = 0
         self.motion_frame_count: int = 0
-        self.motion_frames_threshold: int = self.config['motion_frames_threshold']
-        self.motion_image_percent: float = self.config['motion_image_percent']
-        self.crop_dimensions: List[int] = self.config['crop_dimensions']
+        self.motion_frames_threshold: int = self.config.get('motion_frames_threshold', 2)
+        self.motion_image_percent: float = self.config.get('motion_image_percent', 100)
+        self.crop_dimensions: List[int] = self.config.get('crop_dimensions', [0, 0, 0, 0])
 
     def _setup_logger(self) -> Any:
         logs_directory = os.path.join(self.script_directory, "logs")
