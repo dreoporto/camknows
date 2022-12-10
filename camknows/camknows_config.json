@@ -30,5 +30,6 @@
     "setup_timeout_seconds": 1290,
     "enable_image_debugging": false,
     "motion_frames_threshold": 2,
-    "motion_image_percent": 100
+    "motion_image_percent": 100,
+    "crop_dimensions": [0, 0, 0, 0]
 }
