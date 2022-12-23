@@ -1,8 +1,8 @@
-# CamKnows™
+# CamKnows&trade;
 
 ## Summary
 
-CamKnows™ is a Computer Vision motion detection application for the Raspberry Pi.
+CamKnows&trade; is a Computer Vision motion detection application for the Raspberry Pi.
 
 With the combined powers of both the Raspberry Pi and its Camera Module, CamKnows captures images when motion is detected, based on configured sensitivity.  This is accomplished by calculating the difference between two consecutive images to determine if motion has occurred.  An extensive set of configuration options allow for the customization of various settings, including motion sensitivity and time lapse image capture.
 
@@ -12,11 +12,12 @@ CamKnows is useful for monitoring activity, where customization options are crit
 
 ## How it works
 
-CamKnows is built with Python 3 and the following libraries:
+CamKnows is built with Python 3 and uses the following libraries:
 
-- PiCamera - image capture
-- OpenCV - Computer Vision capabilities, including image difference calculation and image manipulation
-- Numpy - mathematical functions and data arrays
+- [PiCamera](https://picamera.readthedocs.io/) - image capture
+- [OpenCV](https://github.com/opencv/opencv-python) - Computer Vision capabilities, including image difference calculation and image manipulation
+- [Numpy](https://numpy.org/) - mathematical functions and data arrays
+- [imutils](https://github.com/PyImageSearch/imutils) - provides helpful functions such as image resizing
 
 The PiCamera `capture` method obtains data from the Camera Module in the form of a numpy multidimensional data array.  Various capabilities provided by the PiCamera library are leveraged to ensure efficient and effective image capture.  Resolution, rotation, and timestamp settings for PiCamera can be customized in the `camknows_config.json` file.
 
@@ -29,33 +30,35 @@ CamKnows saves an image at a minimum of every hour by default, assuring you that
 - Raspberry Pi Zero, 3 or 4
 - [Raspberry Pi OS](https://www.raspberrypi.org/software/) running Stretch distribution or later
 - [Camera Module](https://www.raspberrypi.org/documentation/accessories/camera.html#camera-modules)
-- OpenCV and required libraries installed
-
-For the above requirements, detailed install steps are available here: [How to Install OpenCV for Python on a Raspberry Pi](https://www.pendragonai.com/how-to-install-opencv-for-python-on-a-raspberry-pi/)
+    - The Camera interface option (available under `raspi-config` *Interface Options*) must be enabled. [Legacy Camera](https://projects.raspberrypi.org/en/projects/getting-started-with-picamera) must be enabled on the latest version of the Raspberry Pi OS.
 
 ## Installation
 
-To install the `camknows` code on your Raspberry Pi:
+To install the `camknows` code on your Raspberry Pi, along with the required libraries mentioned above, run the following:
 
 ```
 $ git clone https://github.com/dreoporto/camknows.git
+
+$ cd camknows
+
+$ ./setup.sh
 ```
 
 ### External Storage and File Share
 
-To ensure adequate storage of files, adding external storage *with automatic mounting* to your Raspberry Pi is encouraged: https://www.raspberrypi.org/documentation/computers/configuration.html#external-storage-configuration
+To ensure adequate storage of files, adding external storage *with automatic mounting* to your Raspberry Pi is encouraged. See [Raspberry Pi Documentation - External Storage Configuration](https://www.raspberrypi.org/documentation/computers/configuration.html#external-storage-configuration) for details.
 
-A Samba File Share makes it simple to view images that have been saved: https://magpi.raspberrypi.org/articles/samba-file-server
+A Samba File Share makes it simple to view images that have been saved: [Samba: Set up a Raspberry Pi as a File Server for your local network - The MagPi magazine](https://magpi.raspberrypi.org/articles/samba-file-server)
 
-Once you have these setups complete, install CamKnows directly on your file share to save files for remote access on your local network.
+Once you have these setups complete, you can install CamKnows directly on your file share to save files for remote access on your local network.
 
 ## Usage
 
 ### Command Line Execution
 
-```
-$ cd camknows/camknows
+Starting in the `camknows/camknows` directory, run the following:
 
+```
 $ python3 camknows.py
 ```
 
@@ -119,6 +122,6 @@ For more efficient file organization and management, images are saved to a serie
 
 ## Acknowledgements
 
-In addition to PiCamera and OpenCV, I have found Simon Monk’s [Raspberry Pi Cookbook](https://www.oreilly.com/library/view/raspberry-pi-cookbook/9781492043218/), now in its 3rd Edition, to be an invaluable resource for leveraging the capabilities of these diminutive but powerful devices to solve real problems. I cannot recommend it enough.
+In addition to PiCamera and OpenCV, I have found Simon Monk's [Raspberry Pi Cookbook](https://www.oreilly.com/library/view/raspberry-pi-cookbook/9781492043218/), now in its 3rd Edition, to be an invaluable resource for leveraging the capabilities of these diminutive but powerful devices to solve real problems. I cannot recommend it enough.
 
 *Copyright (c) 2021-2022 Andre Oporto*

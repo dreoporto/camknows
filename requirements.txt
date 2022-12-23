@@ -1,0 +1,5 @@
+# use latest SUCCESSFUL wheels build at https://www.piwheels.org/project/opencv-contrib-python/
+opencv-contrib-python==4.5.5.62
+imutils
+picamera
+numpy~=1.24.0
