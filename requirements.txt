@@ -1,5 +1,6 @@
 # use latest SUCCESSFUL wheels build at https://www.piwheels.org/project/opencv-contrib-python/
-opencv-contrib-python==4.5.5.62
+# EXAMPLE: opencv-contrib-python==4.5.5.62
+opencv-contrib-python
 imutils
 picamera
-numpy~=1.24.0
+numpy
